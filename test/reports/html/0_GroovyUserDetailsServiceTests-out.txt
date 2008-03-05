@@ -1,3 +1,0 @@
---Output from testCreateInstance--
---Output from testGetDefaultSalt--
-
