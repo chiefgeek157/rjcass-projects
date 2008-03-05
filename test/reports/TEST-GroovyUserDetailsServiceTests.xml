@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="L95PR2C1" name="GroovyUserDetailsServiceTests" tests="1" time="0.0" timestamp="2008-03-05T19:52:21">
+  <properties />
+  <testcase classname="GroovyUserDetailsServiceTests" name="testCreateInstance" time="0.032" />
+  <testcase classname="GroovyUserDetailsServiceTests" name="testGetDefaultSalt" time="0.0" />
+  <system-out><![CDATA[--Output from testCreateInstance--
+--Output from testGetDefaultSalt--
+]]></system-out>
+  <system-err><![CDATA[--Output from testCreateInstance--
+--Output from testGetDefaultSalt--
+]]></system-err>
+</testsuite>
