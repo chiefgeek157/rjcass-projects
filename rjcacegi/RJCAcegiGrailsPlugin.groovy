@@ -30,9 +30,9 @@ class RJCAcegiGrailsPlugin {
         httpSessionContextIntegrationFilter(org.acegisecurity.context.HttpSessionContextIntegrationFilter) {
         }
 
-        logoutFilter(org.acegisecurity.ui.logout.LogoutFilter) {
-            "/logout.gsp"
-            [ref("rememberMeServices"),ref("securityContextLogoutHandler")]
+        logoutFilter(com.rjcass.grails.plugin.acegi.LogoutFilterFactoryBean) {
+            logoutUrl = "/logout.gsp"
+            handlers = [ref("rememberMeServices"),ref("securityContextLogoutHandler")]
         }
 
         authenticationProcessingFilter(org.acegisecurity.ui.webapp.AuthenticationProcessingFilter) {
@@ -61,6 +61,16 @@ class RJCAcegiGrailsPlugin {
             accessDeniedHandler = ref("accessDeniedHandler")
         }
         
+        filterInvocationInterceptor(org.acegisecurity.intercept.web.FilterSecurityInterceptor) {
+            authenticationManager = ref("providerManager")
+            accessDecisionManager = ref("accessDecisionManager")
+            if (conf.useRequestMapDomainClass) {
+                objectDefinitionSource = ref("objectDefinitionSource")
+            } else {
+                objectDefinitionSource = conf.requestMapDescriptor
+            }
+        }
+
         providerManager(org.acegisecurity.providers.ProviderManager) {
             providers = [
                 ref("daoAuthenticationProvider"),
