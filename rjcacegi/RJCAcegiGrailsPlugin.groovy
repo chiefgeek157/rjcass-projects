@@ -1,3 +1,4 @@
+import org.acegisecurity.ui.logout.LogoutHandler
 
 class RJCAcegiGrailsPlugin {
     def version = 0.1
@@ -15,8 +16,10 @@ class RJCAcegiGrailsPlugin {
            "filterInvocationInterceptor"
         ]
 
+        log.info("Filters: "+"${filters.join(',')}")
+        
         /** Filter Chain Proxy referenced by Spring Delegating Proxy Filter in web.xml */
-        filterChainProxy(org.acegisecurity.util.FilterChainProxy) {
+        acegiFilterChainProxy(org.acegisecurity.util.FilterChainProxy) {
             filterInvocationDefinitionSource = """
             CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
             PATTERN_TYPE_APACHE_ANT
@@ -24,12 +27,12 @@ class RJCAcegiGrailsPlugin {
             """
         }
         
-            /** 
         httpSessionContextIntegrationFilter(org.acegisecurity.context.HttpSessionContextIntegrationFilter) {
         }
 
-        logoutFilter(org.acegisecurity.ui.logout.LogoutFilter, "/logout.gsp",
-            [ref("rememberMeServices"),ref("securityContextLogoutHandler")]) {
+        logoutFilter(org.acegisecurity.ui.logout.LogoutFilter) {
+            "/logout.gsp"
+            [ref("rememberMeServices"),ref("securityContextLogoutHandler")]
         }
 
         authenticationProcessingFilter(org.acegisecurity.ui.webapp.AuthenticationProcessingFilter) {
@@ -94,6 +97,11 @@ class RJCAcegiGrailsPlugin {
             key = "anonymous key"
         }
 
+        rememberMeServices(org.acegisecurity.ui.rememberme.TokenBasedRememberMeServices) {
+            userDetailsService = ref("groovyUserDetailsService")
+            key = "remember me key"
+        }
+
         rememberMeAuthenticationProvider(org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider) {
             key = "remember me key"
         }
@@ -103,13 +111,12 @@ class RJCAcegiGrailsPlugin {
             forceHttps = true
         }
         
-        accessDeniedHandler(org.codehaus.groovy.grails.plugins.acegi.GrailsAccessDeniedHandlerImpl) {
+        accessDeniedHandler(org.acegisecurity.ui.AccessDeniedHandlerImpl) {
             errorPage = "/accessDenied.gsp"
         }
         
         securityContextLogoutHandler(org.acegisecurity.ui.logout.SecurityContextLogoutHandler){
         }
-        */
    }
    
     def doWithApplicationContext = { applicationContext ->
@@ -117,22 +124,23 @@ class RJCAcegiGrailsPlugin {
     }
 
     def doWithWebDescriptor = { xml ->
+        
         def contextParam = xml."context-param"
-        contextParam[contextParam.size() - 1] + {
-            'filter' {
-                'filter-name'('delegatorToAcegiFilterChainProxy')
-                'filter-class'('org.springframework.web.filter.DelegatingFilterProxy')
-                'init-param' {
-                    'param-name'('targetClass')
-                    'param-value'('org.acegisecurity.util.FilterChainProxy')
+            contextParam[contextParam.size() - 1] + {
+                'filter' {
+                    'filter-name'('acegiFilterChainProxyDelegator')
+                    'filter-class'('org.springframework.web.filter.DelegatingFilterProxy')
+                    'init-param' {
+                        'param-name'('targetBeanName')
+                        'param-value'('acegiFilterChainProxy')
+                    }
                 }
-            }
         }
     
         def filter = xml."filter"
         filter[filter.size() - 1] + {
             'filter-mapping' {
-                'filter-name'('delegatorToAcegiFilterChainProxy')
+                'filter-name'('acegiFilterChainProxyDelegator')
                 'url-pattern'("/*")
             }
         }
