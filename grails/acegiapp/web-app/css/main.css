@@ -1,0 +1,19 @@
+table.layout {
+    /* border: 3px solid #0000ff; */ /* DEBUG */
+    border: 0px; /* Production */
+    border-collapse: collapse;
+    width: 100%
+}
+
+td.layout {
+    padding: 0;
+}
+
+div.copyright {
+    text-align: center;
+    color: #a0a0a0;
+}
+
+a img {
+	border: none;
+}
