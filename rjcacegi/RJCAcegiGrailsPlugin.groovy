@@ -64,11 +64,19 @@ class RJCAcegiGrailsPlugin {
         filterInvocationInterceptor(org.acegisecurity.intercept.web.FilterSecurityInterceptor) {
             authenticationManager = ref("providerManager")
             accessDecisionManager = ref("accessDecisionManager")
-            if (conf.useRequestMapDomainClass) {
-                objectDefinitionSource = ref("objectDefinitionSource")
-            } else {
-                objectDefinitionSource = conf.requestMapDescriptor
-            }
+            //if (conf.useRequestMapDomainClass) {
+            //    objectDefinitionSource = ref("objectDefinitionSource")
+            //} else {
+                objectDefinitionSource = """
+                	CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+                	PATTERN_TYPE_APACHE_ANT
+                	/login/**=IS_AUTHENTICATED_ANONYMOUSLY
+                	/admin/**=ROLE_USER
+                	/book/test/**=IS_AUTHENTICATED_FULLY
+                	/book/**=ROLE_SUPERVISOR
+                	/**=IS_AUTHENTICATED_ANONYMOUSLY
+                	"""
+            //}
         }
 
         providerManager(org.acegisecurity.providers.ProviderManager) {
@@ -127,6 +135,15 @@ class RJCAcegiGrailsPlugin {
         
         securityContextLogoutHandler(org.acegisecurity.ui.logout.SecurityContextLogoutHandler){
         }
+        
+        accessDecisionManager(org.acegisecurity.vote.UnanimousBased) {
+            allowIfAllAbstainDecisions = "false"
+            decisionVoters = [ref("roleVoter"),ref("authenticatedVoter")]
+        }
+        
+        roleVoter(org.acegisecurity.vote.RoleVoter) {}
+        
+        authenticatedVoter(org.acegisecurity.vote.AuthenticatedVoter) {}
    }
    
     def doWithApplicationContext = { applicationContext ->
