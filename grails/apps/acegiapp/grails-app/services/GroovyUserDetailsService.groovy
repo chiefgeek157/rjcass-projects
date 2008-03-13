@@ -4,21 +4,18 @@ import org.acegisecurity.providers.dao.SaltSource
 import org.acegisecurity.userdetails.User
 import org.acegisecurity.userdetails.UserDetails
 import org.acegisecurity.userdetails.UserDetailsService
-import org.acegisecurity.userdetails.UsernameNotFoundExceptionimport org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.SessionHolder;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.web.context.support.WebApplicationObjectSupport;
+import org.acegisecurity.userdetails.UsernameNotFoundException
 import org.acegisecurity.vote.RoleVoter
+import org.hibernate.SessionFactory
+import org.springframework.orm.hibernate3.SessionFactoryUtils
+import org.springframework.orm.hibernate3.SessionHolder
+import org.springframework.transaction.support.TransactionSynchronizationManager
+import org.springframework.web.context.support.WebApplicationObjectSupport
 
 public class GroovyUserDetailsService extends WebApplicationObjectSupport
     implements UserDetailsService, SaltSource {
 
     boolean transactional = true
-    
-    DaoAuthenticationProvider authProvider
-    RoleVoter roleVoter
     
     UserDetails loadUserByUsername(String username) {
         def sessionFactory = (SessionFactory)getWebApplicationContext().getBean("sessionFactory");
@@ -42,11 +39,12 @@ public class GroovyUserDetailsService extends WebApplicationObjectSupport
         log.debug("Person.roles ${person.roles}")
         def details
         if(person) {
+            def roleVoter = applicationContext.getBean('roleVoter')
             GrantedAuthorityImpl[] auths = new GrantedAuthorityImpl[person.roles.size()]
             def rolePrefix = roleVoter.getRolePrefix()
             def i = 0
             person.roles.each {
-                auths[i++] = new GrantedAuthorityImpl("${rolePrefix}_${it.name.toUpperCase()}")
+                auths[i++] = new GrantedAuthorityImpl("${rolePrefix}${it.name.toUpperCase()}")
             }
             details = new User(person.username, person.passwordHash,
                 person.enabled, person.accountNonExpired, person.credentialsNonExpired,

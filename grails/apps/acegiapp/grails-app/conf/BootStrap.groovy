@@ -4,7 +4,7 @@ class BootStrap {
     
     def init = { servletContext ->
         def administratorRole = createRole("Administrator","System administrators")
-        def userRole = createRole("Uer","Authenticated users")
+        def userRole = createRole("User","Authenticated users")
         def admin = createPerson("admin","admin","Administrator",[administratorRole])
         def roger = createPerson("roger","abc","Roger Cass",[userRole])
     }

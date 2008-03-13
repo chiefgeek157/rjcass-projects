@@ -1,18 +1,18 @@
 // Place your Spring DSL code here
 beans = {
     def filters = [
-       "httpSessionContextIntegrationFilter",
-       "logoutFilter",
-       "authenticationProcessingFilter",
-       "securityContextHolderAwareRequestFilter",
-       "rememberMeProcessingFilter",
-       "anonymousProcessingFilter",
-       "exceptionTranslationFilter",
-       "filterInvocationInterceptor"
+            "httpSessionContextIntegrationFilter",
+            "logoutFilter",
+            "authenticationProcessingFilter",
+            "securityContextHolderAwareRequestFilter",
+            "rememberMeProcessingFilter",
+            "anonymousProcessingFilter",
+            "exceptionTranslationFilter",
+            "filterInvocationInterceptor"
     ]
 
-    log.info("Filters: "+"${filters.join(',')}")
-    
+    log.info("Filters: " + "${filters.join(',')}")
+
     filterChainProxyDelegate(org.acegisecurity.util.FilterChainProxy) {
         filterInvocationDefinitionSource = """
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -20,13 +20,13 @@ beans = {
         /**=${filters.join(',')}
         """
     }
-    
+
     httpSessionContextIntegrationFilter(org.acegisecurity.context.HttpSessionContextIntegrationFilter) {
     }
 
     logoutFilter(LogoutFilterFactoryBean) {
         logoutUrl = "/loggedOut.gsp"
-        handlers = [ref("rememberMeServices"),ref("securityContextLogoutHandler")]
+        handlers = [ref("rememberMeServices"), ref("securityContextLogoutHandler")]
     }
 
     authenticationProcessingFilter(org.acegisecurity.ui.webapp.AuthenticationProcessingFilter) {
@@ -54,17 +54,21 @@ beans = {
         authenticationEntryPoint = ref("authenticationEntryPoint")
         accessDeniedHandler = ref("accessDeniedHandler")
     }
-    
+
     filterInvocationInterceptor(org.acegisecurity.intercept.web.FilterSecurityInterceptor) {
         authenticationManager = ref("providerManager")
         accessDecisionManager = ref("accessDecisionManager")
         //if (conf.useRequestMapDomainClass) {
         //    objectDefinitionSource = ref("objectDefinitionSource")
         //} else {
-            objectDefinitionSource = """
+        objectDefinitionSource = """
             	CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
             	PATTERN_TYPE_APACHE_ANT
+            	/css/**=IS_AUTHENTICATED_ANONYMOUSLY
+            	/images/**=IS_AUTHENTICATED_ANONYMOUSLY
+            	/js/**=IS_AUTHENTICATED_ANONYMOUSLY
             	/login/**=IS_AUTHENTICATED_ANONYMOUSLY
+                /role/**=ROLE_ADMINISTRATOR
             	/*=IS_AUTHENTICATED_ANONYMOUSLY
             	/**=IS_AUTHENTICATED_FULLY
             	"""
@@ -73,29 +77,29 @@ beans = {
 
     providerManager(org.acegisecurity.providers.ProviderManager) {
         providers = [
-            ref("daoAuthenticationProvider"),
-            ref("anonymousAuthenticationProvider"),
-            ref("rememberMeAuthenticationProvider")]
+                ref("daoAuthenticationProvider"),
+                ref("anonymousAuthenticationProvider"),
+                ref("rememberMeAuthenticationProvider")]
     }
-    
+
     daoAuthenticationProvider(org.acegisecurity.providers.dao.DaoAuthenticationProvider) {
         userDetailsService = ref("groovyUserDetailsService")
         passwordEncoder = ref("messageDigestPasswordEncoder")
         saltSource = ref("groovyUserDetailsService")
         userCache = ref("ehUserCache")
     }
-    
+
     groovyUserDetailsService(GroovyUserDetailsService) {
     }
-    
+
     messageDigestPasswordEncoder(org.acegisecurity.providers.encoding.MessageDigestPasswordEncoder, "MD5") {
         encodeHashAsBase64 = true
     }
-    
+
     ehUserCache(org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache) {
         cache = ref("ehCacheFactory")
     }
-    
+
     ehCacheFactory(org.springframework.cache.ehcache.EhCacheFactoryBean) {
         cacheManager = ref("ehCacheManagerFactory")
         cacheName = "GroovyUserDetailsCache"
@@ -115,25 +119,25 @@ beans = {
     rememberMeAuthenticationProvider(org.acegisecurity.providers.rememberme.RememberMeAuthenticationProvider) {
         key = "remember me key"
     }
-    
+
     authenticationEntryPoint(org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint) {
         loginFormUrl = "/login/authenticate"
-        forceHttps = false
+        forceHttps = true
     }
-    
+
     accessDeniedHandler(org.acegisecurity.ui.AccessDeniedHandlerImpl) {
         errorPage = "/login/denied"
     }
-    
-    securityContextLogoutHandler(org.acegisecurity.ui.logout.SecurityContextLogoutHandler){
+
+    securityContextLogoutHandler(org.acegisecurity.ui.logout.SecurityContextLogoutHandler) {
     }
-    
+
     accessDecisionManager(org.acegisecurity.vote.UnanimousBased) {
         allowIfAllAbstainDecisions = "false"
-        decisionVoters = [ref("roleVoter"),ref("authenticatedVoter")]
+        decisionVoters = [ref("roleVoter"), ref("authenticatedVoter")]
     }
-    
+
     roleVoter(org.acegisecurity.vote.RoleVoter) {}
-    
+
     authenticatedVoter(org.acegisecurity.vote.AuthenticatedVoter) {}
 }
