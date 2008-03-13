@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="config"/>
+	<classpathentry kind="var" path="SPRING_HOME/lib/concurrent/backport-util-concurrent.jar"/>
+	<classpathentry kind="var" path="SPRING_HOME/lib/jakarta-commons/commons-logging.jar"/>
+	<classpathentry kind="var" path="SPRING_HOME/lib/log4j/log4j-1.2.14.jar"/>
+	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

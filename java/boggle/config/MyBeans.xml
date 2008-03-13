@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.1.xsd
+		http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-1.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<bean id="boggleBoard" class="com.rjcass.service.boggle.impl.BoggleBoardImpl">
+		<property name="size" value="4"/>
+		<property name="letters" value="lskricnvwoskrjeb"/>
+	</bean>
+	
+	<bean id="boggleDictionary" class="com.rjcass.service.boggle.impl.BoggleDictionaryImpl">
+		<property name="wordListResource" value="classpath:words.txt"/>
+	</bean>
+	
+	<bean id="boggleSolverService" class="com.rjcass.service.boggle.impl.BoggleSolverServiceImpl">
+		<property name="dictionary" ref="boggleDictionary"/>
+	</bean>
+	
+	<bean id="boggleSolverApp" class="com.rjcass.boggle.BoggleSolverApp">
+		<property name="solver" ref="boggleSolverService"/>
+		<property name="board" ref="boggleBoard"/>
+	</bean>
+
+</beans>
