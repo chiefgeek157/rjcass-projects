@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- 
+		Logging
+	-->
+	<bean id="logManager"
+		class="com.rjcass.logging.spi.LogFactoryLogManager">
+		<!-- <constructor-arg ref="commonsLogFactory" /> -->
+		<constructor-arg ref="log4jLogFactory" />
+		<!-- constructor-arg ref="javaLoggingLogFactory" /> -->
+	</bean>
+
+	<bean id="commonsLogFactory"
+		class="com.rjcass.logging.commons.CommonsLogFactory" />
+
+	<bean id="log4jLogFactory"
+		class="com.rjcass.logging.log4j.Log4jLogFactory" />
+
+	<bean id="javaLoggingLogFactory"
+		class="com.rjcass.logging.java.JavaLoggingLogFactory" />
+
+	<!-- 
+		Timing
+	-->
+	<bean id="timerManager"
+		class="com.rjcass.timing.basic.BasicTimerManager">
+		<constructor-arg ref="simpleTimerFactory" />
+	</bean>
+
+	<bean id="simpleTimerFactory"
+		class="com.rjcass.timing.simple.SimpleTimerFactory" />
+
+	<!-- 
+		BSI-style implementation		
+	-->
+	<bean id="businessServiceManager"
+		class="com.rjcass.simpleservice.basic.BasicBusinessServiceManager">
+		<constructor-arg ref="serviceRequestFactory" />
+		<constructor-arg ref="serviceReplyFactory" />
+	</bean>
+
+	<bean id="serviceRequestFactory"
+		class="com.rjcass.simpleservice.basic.BasicServiceRequestFactory" />
+
+	<bean id="serviceReplyFactory"
+		class="com.rjcass.simpleservice.basic.BasicServiceReplyFactory" />
+
+	<!-- 
+		BSI with interface-based lookups implementation		
+	-->
+	<bean id="ifbsiBusinessServiceManager"
+		class="com.rjcass.service.basic.BasicBusinessServiceManager">
+	</bean>
+
+	<bean id="ifbsiBusinessServiceHelper"
+		class="com.rjcass.service.spi.basic.BasicBusinessServiceHelper">
+		<constructor-arg ref="ifbsiBusinessServiceManager" />
+		<constructor-arg ref="ifbsiServiceRequestFactory" />
+		<constructor-arg ref="ifbsiServiceReplyFactory" />
+	</bean>
+
+	<bean id="ifbsiServiceRequestFactory"
+		class="com.rjcass.service.spi.basic.BasicServiceRequestFactory" />
+
+	<bean id="ifbsiServiceReplyFactory"
+		class="com.rjcass.service.spi.basic.BasicServiceReplyFactory" />
+
+</beans>
