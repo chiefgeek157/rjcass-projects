@@ -1,11 +1,9 @@
 import org.acegisecurity.GrantedAuthorityImpl
-import org.acegisecurity.providers.dao.DaoAuthenticationProvider
 import org.acegisecurity.providers.dao.SaltSource
 import org.acegisecurity.userdetails.User
 import org.acegisecurity.userdetails.UserDetails
 import org.acegisecurity.userdetails.UserDetailsService
 import org.acegisecurity.userdetails.UsernameNotFoundException
-import org.acegisecurity.vote.RoleVoter
 import org.hibernate.SessionFactory
 import org.springframework.orm.hibernate3.SessionFactoryUtils
 import org.springframework.orm.hibernate3.SessionHolder

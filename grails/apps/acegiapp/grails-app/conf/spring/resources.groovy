@@ -64,12 +64,13 @@ beans = {
         objectDefinitionSource = """
             	CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
             	PATTERN_TYPE_APACHE_ANT
+                /=IS_AUTHENTICATED_ANONYMOUSLY
+            	/*.gsp=IS_AUTHENTICATED_ANONYMOUSLY
             	/css/**=IS_AUTHENTICATED_ANONYMOUSLY
             	/images/**=IS_AUTHENTICATED_ANONYMOUSLY
             	/js/**=IS_AUTHENTICATED_ANONYMOUSLY
             	/login/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /role/**=ROLE_ADMINISTRATOR
-            	/*=IS_AUTHENTICATED_ANONYMOUSLY
             	/**=IS_AUTHENTICATED_FULLY
             	"""
         //}
@@ -122,12 +123,15 @@ beans = {
 
     authenticationEntryPoint(org.acegisecurity.ui.webapp.AuthenticationProcessingFilterEntryPoint) {
         loginFormUrl = "/login/authenticate"
-        forceHttps = true
+        forceHttps = false
     }
 
     accessDeniedHandler(org.acegisecurity.ui.AccessDeniedHandlerImpl) {
         errorPage = "/login/denied"
     }
+//    accessDeniedHandler(GroovyAccessDeniedHandler) {
+//        errorPage = "/login/denied"
+//    }
 
     securityContextLogoutHandler(org.acegisecurity.ui.logout.SecurityContextLogoutHandler) {
     }
@@ -140,4 +144,7 @@ beans = {
     roleVoter(org.acegisecurity.vote.RoleVoter) {}
 
     authenticatedVoter(org.acegisecurity.vote.AuthenticatedVoter) {}
+
+    authenticationLoggerListener(org.acegisecurity.event.authentication.LoggerListener) {}
+    authorizationLoggerListener(org.acegisecurity.event.authorization.LoggerListener) {}
 }

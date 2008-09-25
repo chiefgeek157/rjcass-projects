@@ -35,14 +35,16 @@
     <orderEntry type="library" name="GROOVY" level="application" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Acegi-1.0.6" level="project" />
+    <orderEntry type="library" name="commons-codec-1.3" level="project" />
+    <orderEntry type="library" name="jetty-1.6.4" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/lib" />
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/javaee.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>
     <orderEntryProperties />

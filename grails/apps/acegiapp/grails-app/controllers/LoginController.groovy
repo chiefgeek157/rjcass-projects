@@ -42,6 +42,7 @@ class LoginController {
     }
 
     def denied = {
+        log.warn("DENIED, BOY!")
         redirect(uri: "/")
     }	
 
