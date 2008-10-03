@@ -1,93 +1,113 @@
 package com.rjcass.hashiokakero;
 
+import java.util.LinkedList;
+
 import com.rjcass.hashiokakero.Position.Alignment;
 
-public class Bridge
+public class Bridge extends Occupant
 {
-    public enum Orientation
-    {
-        NORTH_SOUTH, EAST_WEST
-    };
+	public enum Orientation
+	{
+		NORTH_SOUTH, EAST_WEST
+	};
 
-    private Island mStart;
-    private Island mEnd;
-    private boolean mCommitted;
-    private Orientation mOrientation;
+	private Island mStart;
+	private Island mEnd;
+	private Orientation mOrientation;
+	private LinkedList<Cell> mCells;
 
-    public Bridge(Island start, Island end)
-    {
-        mStart = start;
-        mEnd = end;
+	public Bridge(Island island1, Island island2)
+	{
+		mCells = new LinkedList<Cell>();
 
-        Position startPos = start.getPosition();
-        Position endPos = end.getPosition();
+		Position pos1 = island1.getCell().getPosition();
+		Position pos2 = island2.getCell().getPosition();
 
-        Alignment alignment = startPos.getAlignmentWith(endPos);
-        if(alignment == Alignment.MISALIGNED
-                || alignment == Alignment.COINCIDENT)
-            throw new HashiException(
-                    "Islands must be aligned and non-coincident");
+		Alignment alignment = pos1.getAlignmentWith(pos2);
+		if (alignment == Alignment.MISALIGNED || alignment == Alignment.COINCIDENT)
+			throw new HashiException("Islands must be aligned and non-coincident");
 
-        Grid grid = start.getGrid();
-        if(alignment == Alignment.HORIZONTAL)
-        {
-            mOrientation = Orientation.EAST_WEST;
-            int row = startPos.getY();
-            int startCol = startPos.getX();
-            int endCol = endPos.getX();
-            for(int col = startCol + 1; col < endCol; col++)
-            {
-                addSegment(grid, row, col);
-            }
-        }
-        else
-        {
-            mOrientation = Orientation.NORTH_SOUTH;
-            int startRow = startPos.getY();
-            int endRow = endPos.getY();
-            int col = startPos.getX();
-            for(int row = startRow + 1; row < endRow; row++)
-            {
-                addSegment(grid, row, col);
-            }
-        }
-    }
+		if (alignment == Alignment.ROW)
+		{
+			mOrientation = Orientation.EAST_WEST;
 
-    public Orientation getOrientation()
-    {
-        return mOrientation;
-    }
+			int startCol, endCol;
+			if (pos1.getCol() < pos2.getCol())
+			{
+				mStart = island1;
+				mEnd = island2;
+				startCol = pos1.getCol();
+				endCol = pos2.getCol();
+			}
+			else
+			{
+				mStart = island2;
+				mEnd = island1;
+				startCol = pos2.getCol();
+				endCol = pos1.getCol();
+			}
 
-    private void addSegment(Grid grid, int row, int col)
-    {
-        Occupant occupant = grid.getOccupant(row, col);
-        if(occupant != null)
-        {
-            if(occupant instanceof BridgeSegment)
-            {
-                BridgeSegment segment = (BridgeSegment)occupant;
-                if(segment.getOrientation() != mOrientation)
-                    throw new HashiException(
-                            "Existing segment has different orientation");
-                else if(segment.getSegmentCount() != 1)
-                    throw new HashiException(
-                            "Existing segment already has two bridges");
-                else
-                {
-                    segment.addSegment(this);
-                }
-            }
-            else
-            {
-                throw new HashiException(
-                        "Cannot add bridge segment due to occupant: "
-                                + occupant);
-            }
-        }
-        else
-        {
-            BridgeSegment segment = new BridgeSegment(grid, row, col, this);
-            grid.setOccupant(row, col, segment);
-        }
-    }
+			Cell cell = mStart.getCell().getEast();
+			for (int col = startCol + 1; col < endCol; col++)
+			{
+				mCells.add(cell);
+				cell.setEWBridge(this);
+				cell = cell.getEast();
+			}
+		}
+		else
+		{
+			mOrientation = Orientation.NORTH_SOUTH;
+
+			int startRow, endRow;
+			if (pos1.getRow() < pos2.getRow())
+			{
+				mStart = island1;
+				mEnd = island2;
+				startRow = pos1.getRow();
+				endRow = pos2.getRow();
+			}
+			else
+			{
+				mStart = island2;
+				mEnd = island1;
+				startRow = pos2.getRow();
+				endRow = pos1.getRow();
+			}
+
+			Cell cell = mStart.getCell().getSouth();
+			for (int row = startRow + 1; row < endRow; row++)
+			{
+				mCells.add(cell);
+				cell.setNSBridge(this);
+				cell = cell.getSouth();
+			}
+		}
+	}
+
+	public Orientation getOrientation()
+	{
+		return mOrientation;
+	}
+
+	public void commit()
+	{
+		doCommit();
+		for (Cell cell : mCells)
+		{
+			cell.commit(this);
+		}
+		mStart.bridgeCommitted(this);
+		mEnd.bridgeCommitted(this);
+	}
+
+	public void remove()
+	{
+		for (Cell cell : mCells)
+		{
+			cell.remove(this);
+		}
+		mStart.removeBridge(this);
+		mEnd.removeBridge(this);
+	}
 }

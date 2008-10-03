@@ -1,7 +1,19 @@
 package com.rjcass.hashiokakero;
 
-
-public interface Occupant
+public abstract class Occupant
 {
-    boolean isObstacle();
+	private boolean mCommitted;
+	
+	public Occupant()
+	{}
+
+	public boolean isCommitted()
+	{
+		return mCommitted;
+	}
+	
+	protected void doCommit()
+	{
+		mCommitted = true;
+	}
 }

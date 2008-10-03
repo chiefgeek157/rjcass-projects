@@ -4,49 +4,49 @@ public class Position
 {
     public enum Alignment
     {
-        MISALIGNED, COINCIDENT, VERTICAL, HORIZONTAL
+        MISALIGNED, COINCIDENT, COLUMN, ROW
     };
 
-    private int mX;
-    private int mY;
+    private int mRow;
+    private int mCol;
 
     public Position()
     {
     }
 
-    public Position(int x, int y)
+    public Position(int row, int col)
     {
-        mX = x;
-        mY = y;
+        mRow = row;
+        mCol = col;
     }
 
-    public int getX()
+    public int getRow()
     {
-        return mX;
+        return mRow;
     }
 
-    public int getY()
+    public int getCol()
     {
-        return mY;
+        return mCol;
     }
 
     public boolean alignedWith(Position p)
     {
         boolean result = false;
-        if(mX == p.mX || mY == p.mY) result = true;
+        if(mRow == p.mRow || mCol == p.mCol) result = true;
         return result;
     }
 
     public Alignment getAlignmentWith(Position p)
     {
         Alignment result = Alignment.MISALIGNED;
-        if(mX == p.mX)
-            if(mY == p.mY)
+        if(mRow == p.mRow)
+            if(mCol == p.mCol)
                 result = Alignment.COINCIDENT;
             else
-                result = Alignment.VERTICAL;
+                result = Alignment.ROW;
         else
-            result = Alignment.HORIZONTAL;
+            result = Alignment.COLUMN;
         return result;
     }
 }

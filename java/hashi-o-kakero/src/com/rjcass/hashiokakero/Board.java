@@ -4,226 +4,230 @@ import java.io.PrintWriter;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
-public class Board implements Grid
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.rjcass.hashiokakero.Island.CompassPoint;
+
+public class Board
 {
-    private int mRows;
-    private int mCols;
-    private Occupant[][] mOccupants;
+	private static Log sLog = LogFactory.getLog(Board.class);
 
-    public Board(int rows, int cols)
-    {
-        if(rows < 1 || cols < 1)
-            throw new HashiException("Rows and columns must be greater than 0");
+	private int mRows;
+	private int mCols;
+	private Cell[][] mCells;
 
-        mRows = rows;
-        mCols = cols;
+	public Board(int rows, int cols)
+	{
+		if (rows < 1 || cols < 1)
+			throw new HashiException("Rows and columns must be greater than 0");
 
-        mOccupants = new Occupant[rows][cols];
-    }
+		mRows = rows;
+		mCols = cols;
 
-    public void addIsland(int row, int col, int maxBridges)
-    {
-        Island island = new Island(this, row, col, maxBridges);
-        setOccupant(row, col, island);
-    }
+		mCells = new Cell[rows][cols];
+		for (int i = 0; i < mRows; i++)
+		{
+			for (int j = 0; j < mCols; j++)
+			{
+				mCells[i][j] = new Cell(i, j);
+				if (i > 0)
+				{
+					mCells[i][j].setNorth(mCells[i - 1][j]);
+					mCells[i - 1][j].setSouth(mCells[i][j]);
+				}
+				if (j > 0)
+				{
+					mCells[i][j].setWest(mCells[i][j - 1]);
+					mCells[i][j - 1].setEast(mCells[i][j]);
+				}
+			}
+		}
+	}
 
-    public void setOccupant(int row, int col, Occupant occupant)
-    {
-        if(occupant == null)
-            throw new IllegalArgumentException("Occupant cannot be null");
+	public void addIsland(int row, int col, int maxBridges)
+	{
+		Cell cell = mCells[row][col];
+		Island island = new Island(cell, maxBridges);
+		cell.setIsland(island);
+	}
 
-        mOccupants[row][col] = occupant;
-    }
+	public void solve()
+	{
+		Deque<Island> remainingIslands = new LinkedList<Island>();
 
-    public Occupant getOccupant(int row, int col)
-    {
-        return mOccupants[row][col];
-    }
+		for (int row = 0; row < mRows; row++)
+		{
+			for (int col = 0; col < mCols; col++)
+			{
+				Cell cell = mCells[row][col];
+				Island island = cell.getIsland();
+				if (island != null)
+				{
+					int allowed = island.getAllowedBridgeCount();
+					remainingIslands.add(island);
+					Island northNeighbor = island.getNeighbor(CompassPoint.NORTH);
+					Island westNeighbor = island.getNeighbor(CompassPoint.WEST);
+					if (northNeighbor != null)
+					{
+						int numToBuild = 2;
+						int northAllowed = northNeighbor.getAllowedBridgeCount();
+						if (allowed == 1)
+						{
+							if (northAllowed == 1)
+								numToBuild = 0;
+							else
+								numToBuild = 1;
+						}
+						else if (allowed == 2)
+						{
+							if (northAllowed == 2)
+								numToBuild = 1;
+						}
+						for (int i = 0; i < numToBuild; i++)
+						{
+							Bridge bridge = new Bridge(northNeighbor, island);
+							northNeighbor.addBridge(CompassPoint.SOUTH, bridge);
+							island.addBridge(CompassPoint.NORTH, bridge);
+						}
+					}
+					if (westNeighbor != null)
+					{
+						int numToBuild = 2;
+						int westAllowed = westNeighbor.getAllowedBridgeCount();
+						if (allowed == 1)
+						{
+							if (westAllowed == 1)
+								numToBuild = 0;
+							else
+								numToBuild = 1;
+						}
+						else if (allowed == 2)
+						{
+							if (westAllowed == 2)
+								numToBuild = 1;
+						}
+						for (int i = 0; i < numToBuild; i++)
+						{
+							Bridge bridge = new Bridge(westNeighbor, island);
+							westNeighbor.addBridge(CompassPoint.EAST, bridge);
+							island.addBridge(CompassPoint.WEST, bridge);
+						}
+					}
+				}
+			}
+		}
 
-    public void solve()
-    {
-        Deque<Island> remainingIslands = new LinkedList<Island>();
+		Deque<Island> islandsToRework = new LinkedList<Island>();
+		Deque<Island> swap;
 
-        createPossibleBridges();
-        while(remainingIslands.size() > 0)
-        {
-            Island island = remainingIslands.removeFirst();
-            checkIsland(island);
-        }
-    }
+		boolean progressMade = true;
+		while (progressMade)
+		{
+			progressMade = false;
+			while (remainingIslands.size() > 0)
+			{
+				Island island = remainingIslands.removeFirst();
+				if (applyRules(island))
+					progressMade = true;
+				if (!island.isCompleted())
+					islandsToRework.add(island);
+			}
+			swap = remainingIslands;
+			remainingIslands = islandsToRework;
+			islandsToRework = swap;
+		}
+		if (!progressMade)
+			sLog.debug("Exiting due to no progress made");
+	}
 
-    public void dump(PrintWriter w)
-    {
-        w.print("     ");
-        for(int col = 0; col < mCols; col++)
-            w.printf("%-2d ", col);
-        w.println();
-        for(int row = 0; row < mRows; row++)
-        {
-            for(int subrow = 0; subrow < 3; subrow++)
-            {
-                switch(subrow)
-                {
-                case 0:
-                case 2:
-                    w.print("  : ");
-                    break;
-                case 1:
-                    w.printf("%2d: ", row);
-                }
-                for(int col = 0; col < mCols; col++)
-                {
-                    Occupant occupant = mOccupants[row][col];
-                    if(occupant != null)
-                    {
-                        if(occupant instanceof Island)
-                        {
-                            dump((Island)occupant, subrow, w);
-                        }
-                        else if(occupant instanceof BridgeSegment)
-                        {
-                            dump((BridgeSegment)occupant, subrow, w);
-                        }
-                    }
-                    else
-                    {
-                        w.print("   ");
-                    }
-                }
-                w.println();
-            }
-        }
-        w.flush();
-    }
+	public void dump(PrintWriter w)
+	{
+		w.print("      ");
+		for (int col = 0; col < mCols; col++)
+			w.printf(" %-2d ", col);
+		w.println();
+		for (int row = 0; row < mRows; row++)
+		{
+			for (int subrow = 0; subrow < 4; subrow++)
+			{
+				switch (subrow)
+				{
+					case 0:
+					case 1:
+					case 3:
+						w.print("   : ");
+						break;
+					case 2:
+						w.printf(" %2d: ", row);
+				}
+				for (int col = 0; col < mCols; col++)
+				{
+					Cell cell = mCells[row][col];
+					w.print(cell.toString(subrow));
+				}
+				w.println();
+			}
+		}
+		w.flush();
+	}
 
-    private void createPossibleBridges()
-    {
-        // Search only North and West
-        for(int row = 0; row < mRows; row++)
-        {
-            for(int col = 0; col < mCols; col++)
-            {
-                Occupant occupant = mOccupants[row][col];
-                if(occupant != null && !occupant.isObstacle())
-                {
-                    if(row > 0)
-                    {
-                        for(int checkRow = row - 1; checkRow >= 0; checkRow--)
-                        {
-                            Occupant checkOccupant = mOccupants[checkRow][col];
-                            if(checkOccupant == null || checkOccupant != null && !checkOccupant.isObstacle())
-                            {
+	private boolean applyRules(Island island)
+	{
+		boolean progressMade = false;
+		if (applyUncommittedEqualsAvailable(island))
+			progressMade = true;
+		if (applyConnectToEachNeighbor(island))
+			progressMade = true;
+		return progressMade;
+	}
 
-                            }
-                        }
-                    }
-                    if(col > 0)
-                    {
+	private boolean applyUncommittedEqualsAvailable(Island island)
+	{
+		boolean progressMade = false;
+		if (!island.isCompleted())
+		{
+			int available = island.getAvailableBridgeCount();
+			int uncommitted = island.getUncommittedBridgeCount();
+			if (available == uncommitted)
+			{
+				sLog.debug("Applying UncommittedEqualsAvailable to " + island);
+				progressMade = true;
+				Map<CompassPoint, Set<Bridge>> bridges = island.getUncommittedBridges();
+				for (CompassPoint cp : CompassPoint.values())
+				{
+					for (Bridge bridge : bridges.get(cp))
+						bridge.commit();
+				}
+			}
+		}
+		return progressMade;
+	}
 
-                    }
-                }
-            }
-        }
-    }
-
-    private void checkIsland(Island island)
-    {
-        if(!island.isCompleted())
-        {
-
-        }
-    }
-
-    private void dump(Island island, int row, PrintWriter w)
-    {
-        Map<Island.CompassPoint,Integer> bridgeCount = island
-                .getConnectionCount();
-        switch(row)
-        {
-        case 0:
-            if(island.isCompleted())
-                w.print("\\");
-            else
-                w.print("+");
-            if(bridgeCount.get(Island.CompassPoint.NORTH) == 0)
-                w.print("-");
-            else if(bridgeCount.get(Island.CompassPoint.NORTH) == 1)
-                w.print("|");
-            else
-                w.print("H");
-            if(island.isCompleted())
-                w.print("/");
-            else
-                w.print("+");
-            break;
-        case 1:
-            if(bridgeCount.get(Island.CompassPoint.WEST) == 0)
-                w.print("|");
-            else if(bridgeCount.get(Island.CompassPoint.WEST) == 1)
-                w.print("-");
-            else
-                w.print("=");
-            w.print(island.getMaxBridges());
-            if(bridgeCount.get(Island.CompassPoint.EAST) == 0)
-                w.print("|");
-            else if(bridgeCount.get(Island.CompassPoint.EAST) == 1)
-                w.print("-");
-            else
-                w.print("=");
-            break;
-        case 2:
-            if(island.isCompleted())
-                w.print("/");
-            else
-                w.print("+");
-            if(bridgeCount.get(Island.CompassPoint.SOUTH) == 0)
-                w.print("-");
-            else if(bridgeCount.get(Island.CompassPoint.SOUTH) == 1)
-                w.print("|");
-            else
-                w.print("H");
-            if(island.isCompleted())
-                w.print("\\");
-            else
-                w.print("+");
-            break;
-        }
-    }
-
-    private void dump(BridgeSegment s, int row, PrintWriter w)
-    {
-        switch(s.getOrientation())
-        {
-        case EAST_WEST:
-            if(row == 1)
-            {
-                switch(s.getSegmentCount())
-                {
-                case 1:
-                    w.print("---");
-                    break;
-                case 2:
-                    w.print("===");
-                    break;
-                }
-            }
-            else
-            {
-                w.print("   ");
-            }
-            break;
-        case NORTH_SOUTH:
-            switch(s.getSegmentCount())
-            {
-            case 1:
-                w.print(" | ");
-                break;
-            case 2:
-                w.print(" H ");
-                break;
-            }
-            break;
-        }
-    }
+	private boolean applyConnectToEachNeighbor(Island island)
+	{
+		boolean progressMade = false;
+		if (!island.isCompleted())
+		{
+			int available = island.getAvailableBridgeCount();
+			int uncommitted = island.getUncommittedBridgeCount();
+			if (uncommitted - available == 1)
+			{
+				sLog.debug("Applying ConnectToEachNeighbor to " + island);
+				progressMade = true;
+				Map<CompassPoint, Set<Bridge>> bridges = island.getUncommittedBridges();
+				for (CompassPoint cp : CompassPoint.values())
+				{
+					for (Bridge bridge : bridges.get(cp))
+					{
+						bridge.commit();
+						break;
+					}
+				}
+			}
+		}
+		return progressMade;
+	}
 }
