@@ -74,9 +74,9 @@ public class Board
 					{
 						int numToBuild = 2;
 						int northAllowed = northNeighbor.getAllowedBridgeCount();
-						if (allowed == 1)
+						if (allowed == 1 || northAllowed == 1)
 						{
-							if (northAllowed == 1)
+							if (allowed == 1 && northAllowed == 1)
 								numToBuild = 0;
 							else
 								numToBuild = 1;
@@ -97,9 +97,9 @@ public class Board
 					{
 						int numToBuild = 2;
 						int westAllowed = westNeighbor.getAllowedBridgeCount();
-						if (allowed == 1)
+						if (allowed == 1 || westAllowed == 1)
 						{
-							if (westAllowed == 1)
+							if (allowed == 1 && westAllowed == 1)
 								numToBuild = 0;
 							else
 								numToBuild = 1;
@@ -130,10 +130,17 @@ public class Board
 			while (remainingIslands.size() > 0)
 			{
 				Island island = remainingIslands.removeFirst();
-				if (applyRules(island))
+				if (island.isCompleted())
+				{
 					progressMade = true;
-				if (!island.isCompleted())
-					islandsToRework.add(island);
+				}
+				else
+				{
+					if (applyRules(island))
+						progressMade = true;
+					if (!island.isCompleted())
+						islandsToRework.add(island);
+				}
 			}
 			swap = remainingIslands;
 			remainingIslands = islandsToRework;
@@ -141,6 +148,8 @@ public class Board
 		}
 		if (!progressMade)
 			sLog.debug("Exiting due to no progress made");
+		else
+			sLog.debug("Completed solution");
 	}
 
 	public void dump(PrintWriter w)
@@ -181,6 +190,8 @@ public class Board
 			progressMade = true;
 		if (applyConnectToEachNeighbor(island))
 			progressMade = true;
+		if (applyOneAvailableOneDirection(island))
+			progressMade = true;
 		return progressMade;
 	}
 
@@ -213,17 +224,44 @@ public class Board
 		{
 			int available = island.getAvailableBridgeCount();
 			int uncommitted = island.getUncommittedBridgeCount();
-			if (uncommitted - available == 1)
+			if ((available == 3 || available == 5 || available == 7) && uncommitted - available == 1)
 			{
 				sLog.debug("Applying ConnectToEachNeighbor to " + island);
 				progressMade = true;
 				Map<CompassPoint, Set<Bridge>> bridges = island.getUncommittedBridges();
 				for (CompassPoint cp : CompassPoint.values())
 				{
-					for (Bridge bridge : bridges.get(cp))
+					Set<Bridge> cpBridges = bridges.get(cp);
+					if (cpBridges.size() == 2)
 					{
+						Bridge bridge = cpBridges.iterator().next();
 						bridge.commit();
-						break;
+					}
+				}
+			}
+		}
+		return progressMade;
+	}
+
+	private boolean applyOneAvailableOneDirection(Island island)
+	{
+		boolean progressMade = false;
+		if (!island.isCompleted())
+		{
+			int available = island.getAvailableBridgeCount();
+			int uncommitted = island.getUncommittedBridgeCount();
+			if (available == 1 && uncommitted <= 2)
+			{
+				Map<CompassPoint, Set<Bridge>> bridges = island.getUncommittedBridges();
+				for (CompassPoint cp : CompassPoint.values())
+				{
+					Set<Bridge> cpBridges = bridges.get(cp);
+					if (cpBridges.size() == 2)
+					{
+						progressMade = true;
+						sLog.debug("Applying OneAvailableOneDirection to " + island);
+						Bridge bridge = cpBridges.iterator().next();
+						bridge.commit();
 					}
 				}
 			}

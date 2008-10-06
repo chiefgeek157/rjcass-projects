@@ -248,7 +248,7 @@ public class Cell
 				else
 				{
 					if (mEWBridge2 != null)
-						if (mEWBridge1.isCommitted())
+						if (mEWBridge2.isCommitted())
 							w.print("#");
 						else
 							w.print("-");
