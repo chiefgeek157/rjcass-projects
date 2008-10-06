@@ -110,4 +110,10 @@ public class Bridge extends Occupant
 		mStart.removeBridge(this);
 		mEnd.removeBridge(this);
 	}
+
+	public String toString()
+	{
+		return "B((" + mStart.getCell().getPosition().getRow() + "," + mStart.getCell().getPosition().getCol() + ")->("
+				+ mEnd.getCell().getPosition().getRow() + "," + mEnd.getCell().getPosition().getCol() + "))";
+	}
 }

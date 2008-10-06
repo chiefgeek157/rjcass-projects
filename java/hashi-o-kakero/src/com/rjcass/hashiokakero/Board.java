@@ -145,6 +145,7 @@ public class Board
 			swap = remainingIslands;
 			remainingIslands = islandsToRework;
 			islandsToRework = swap;
+			//dump(new PrintWriter(System.out));
 		}
 		if (!progressMade)
 			sLog.debug("Exiting due to no progress made");
@@ -210,7 +211,10 @@ public class Board
 				for (CompassPoint cp : CompassPoint.values())
 				{
 					for (Bridge bridge : bridges.get(cp))
+					{
+						sLog.debug("Committing " + bridge);
 						bridge.commit();
+					}
 				}
 			}
 		}
@@ -224,17 +228,27 @@ public class Board
 		{
 			int available = island.getAvailableBridgeCount();
 			int uncommitted = island.getUncommittedBridgeCount();
-			if ((available == 3 || available == 5 || available == 7) && uncommitted - available == 1)
+			boolean atLeastOneTwoBridgeDirection = false;
+			Map<CompassPoint, Set<Bridge>> bridges = island.getUncommittedBridges();
+			for (CompassPoint cp : CompassPoint.values())
+			{
+				Set<Bridge> cpBridges = bridges.get(cp);
+				if (cpBridges.size() == 2)
+				{
+					atLeastOneTwoBridgeDirection = true;
+				}
+			}
+			if (atLeastOneTwoBridgeDirection && available > 1 && uncommitted - available == 1)
 			{
 				sLog.debug("Applying ConnectToEachNeighbor to " + island);
 				progressMade = true;
-				Map<CompassPoint, Set<Bridge>> bridges = island.getUncommittedBridges();
 				for (CompassPoint cp : CompassPoint.values())
 				{
 					Set<Bridge> cpBridges = bridges.get(cp);
 					if (cpBridges.size() == 2)
 					{
 						Bridge bridge = cpBridges.iterator().next();
+						sLog.debug("Committing " + bridge);
 						bridge.commit();
 					}
 				}
@@ -261,6 +275,7 @@ public class Board
 						progressMade = true;
 						sLog.debug("Applying OneAvailableOneDirection to " + island);
 						Bridge bridge = cpBridges.iterator().next();
+						sLog.debug("Committing " + bridge);
 						bridge.commit();
 					}
 				}

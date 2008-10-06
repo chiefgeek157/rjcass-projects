@@ -149,4 +149,9 @@ public class Island extends Occupant
 				mTotalBridgeCount--;
 		}
 	}
+
+	public String toString()
+	{
+		return "I(" + mCell.getPosition().getRow() + "," + mCell.getPosition().getCol() + ")";
+	}
 }
