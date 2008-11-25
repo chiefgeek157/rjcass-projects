@@ -180,8 +180,8 @@ public class ModelBuilder
     // return info;
     // }
 
-    // private void addJar(BuildableModel model, Set<Entity> queue,
-    // Set<Entity> visited, Repository repos, String path)
+    // private void addJar(BuildableModel model, Set<AbstractEntity> queue,
+    // Set<AbstractEntity> visited, Repository repos, String path)
     // {
     // if(path == null)
     // throw new IllegalArgumentException("Jar path cannot be null");
@@ -215,7 +215,7 @@ public class ModelBuilder
     // Package pkgInfo = createPackage(clazz.getPackageName());
     // createRelationship(MemberOfJar.class, pkgInfo, jarInfo);
     //
-    // Entity entity = create(clazz);
+    // AbstractEntity entity = create(clazz);
     // createRelationship(MemberOfPackage.class, entity, pkgInfo);
     // }
     // catch(ClassNotFoundException e)
@@ -226,7 +226,7 @@ public class ModelBuilder
     // }
     // }
 
-    // private Entity create(JavaClass clazz)
+    // private AbstractEntity create(JavaClass clazz)
     // {
     // if(clazz.isInterface())
     // return createInterface(clazz);
@@ -500,7 +500,7 @@ public class ModelBuilder
     // }
     //
     // private <T extends Relationship> void createRelationship(Class<T> type,
-    // Entity source, Entity target)
+    // AbstractEntity source, AbstractEntity target)
     // {
     // Set<Relationship> rels = mRelationships.get(source);
     // if(rels == null)

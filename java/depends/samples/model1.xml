@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model>
+	<types>
+		<entity-types>
+			<entity-type id="1" name="component" loa="1"/>
+			<entity-type id="2" name="jar" loa="2" abstraction="component"/>
+			<entity-type id="3" name="module" loa="2" abstraction="jar"/>
+			<entity-type id="4" name="package" loa="3" abstraction="module"/>
+			<entity-type id="5" name="class" loa="4" abstraction="package"/>
+		</entity-types>
+		<relationship-types>
+			<relationship-type id="6" name="component-dependency" loa="1"/>
+			<relationship-type id="7" name="jar-dependency" loa="2"/>
+			<relationship-type id="8" name="module-dependency" loa="2"/>
+			<relationship-type id="9" name="package-dependency" loa="3"/>
+			<relationship-type id="10" name="class-dependency" loa="4"/>
+		</relationship-types>
+	</types>
+	<entities>
+		<entity id="11" name="component1" type="component"/>
+		<entity id="12" name="component2" type="component"/>
+		<entity id="13" name="jar1" type="jar" abstraction="component1"/>
+		<entity id="14" name="jar2" type="jar" abstraction="component2"/>
+		<entity id="15" name="jar3" type="jar" abstraction="component2"/>
+		<entity id="16" name="module1" type="module" abstraction="jar1"/>
+		<entity id="17" name="module2" type="module"/>
+		<entity id="18" name="module3" type="module"/>
+		<entity id="19" name="module4" type="module"/>
+		<entity id="20" name="package1" type="package"/>
+		<entity id="21" name="package2" type="package"/>
+		<entity id="22" name="package3" type="package"/>
+		<entity id="23" name="package4" type="package"/>
+		<entity id="24" name="package5" type="package"/>
+		<entity id="25" name="class1" type="class"/>
+	</entities>
+	<relationships>
+		<relationship id="26" type="component-dependency" source="component1" target="component2"/>
+	</relationships>
+</model>
