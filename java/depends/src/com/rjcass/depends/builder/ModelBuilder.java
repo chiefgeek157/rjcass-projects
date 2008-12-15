@@ -342,13 +342,13 @@ public class ModelBuilder
         {
             for(int i = 0; i < superInfNames.length; i++)
             {
-                if(superInfNames[i] != cls.getName())
+                if(!superInfNames[i].equals(cls.getName()))
                 {
                     sLog.debug("Found super interface: " + superInfNames[i]);
                     ClassJ superInf = mModel.findClass(superInfNames[i]);
                     if(cls.isInterface())
                     {
-                        if(superInfNames[i] != "java.lang.Object")
+                        if(!superInfNames[i].equals("java.lang.Object"))
                         {
                             sLog.debug("Adding EXTENDS relationship");
                             mModel.addRelationship(Relationship.Type.EXTENDS,
