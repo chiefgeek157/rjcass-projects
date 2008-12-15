@@ -9,7 +9,7 @@ public class BasicEntityFactory implements EntityFactory
 	@Override
 	public Entity createEntity(EntityType type, String name)
 	{
-		BasicEntity entity = new BasicEntity(type, name);
+		BasicSPIEntity entity = new BasicSPIEntity(type, name);
 		return entity;
 	}
 }

@@ -2,8 +2,9 @@ package com.rjcass.depends2;
 
 import java.util.Set;
 
-public interface RelationshipType
+public interface DependencyType
 {
-	Set<RelationshipType> getSuperTypes();
+	Set<DependencyType> getSuperTypes();
+
 	String getName();
 }
