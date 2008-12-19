@@ -4,7 +4,7 @@ import com.rjcass.depends2.Dependency;
 
 public interface SPIDependency extends Dependency
 {
-	void addDetail(Dependency dependency);
+    void addDetail(SPIDependency dependency);
 
-	void removeDetail(Dependency dependency);
+    void removeDetail(SPIDependency dependency);
 }
