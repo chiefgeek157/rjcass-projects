@@ -18,13 +18,12 @@ public class GenericEntityFactory implements EntityFactory
         setEntityClassName(entityClassName);
     }
 
-    @Override
     public Entity createEntity(EntityType type, String name)
     {
         Entity entity = null;
         try
         {
-            Class entityClass = Class.forName(mEntityClassName);
+            Class<?> entityClass = Class.forName(mEntityClassName);
             entity = (Entity)entityClass.newInstance();
         }
         catch (InstantiationException e)

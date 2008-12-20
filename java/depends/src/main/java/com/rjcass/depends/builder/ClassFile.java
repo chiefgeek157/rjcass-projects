@@ -49,7 +49,6 @@ public class ClassFile implements Comparable<ClassFile>
         return result;
     }
 
-    @Override
     public int compareTo(ClassFile o)
     {
         return mName.compareTo(o.mName);

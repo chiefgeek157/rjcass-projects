@@ -5,44 +5,40 @@ import java.util.Iterator;
 
 public class IterableEnumeration<T> implements Iterable<T>
 {
-    private EnumerationIterator<T> mIterator;
+	private EnumerationIterator<T> mIterator;
 
-    public IterableEnumeration(Enumeration<T> e)
-    {
-        mIterator = new EnumerationIterator<T>(e);
-    }
+	public IterableEnumeration(Enumeration<T> e)
+	{
+		mIterator = new EnumerationIterator<T>(e);
+	}
 
-    @Override
-    public Iterator<T> iterator()
-    {
-        return mIterator;
-    }
-    
-    private class EnumerationIterator<U> implements Iterator<U>
-    {
-        Enumeration<U> mEnum;
+	public Iterator<T> iterator()
+	{
+		return mIterator;
+	}
 
-        public EnumerationIterator(Enumeration<U> e)
-        {
-            mEnum = e;
-        }
+	private class EnumerationIterator<U> implements Iterator<U>
+	{
+		Enumeration<U> mEnum;
 
-        @Override
-        public boolean hasNext()
-        {
-            return mEnum.hasMoreElements();
-        }
+		public EnumerationIterator(Enumeration<U> e)
+		{
+			mEnum = e;
+		}
 
-        @Override
-        public U next()
-        {
-            return mEnum.nextElement();
-        }
+		public boolean hasNext()
+		{
+			return mEnum.hasMoreElements();
+		}
 
-        @Override
-        public void remove()
-        {
-            throw new IllegalStateException("Cannot use remove() on an Enumeration");
-        }
-    }
+		public U next()
+		{
+			return mEnum.nextElement();
+		}
+
+		public void remove()
+		{
+			throw new IllegalStateException("Cannot use remove() on an Enumeration");
+		}
+	}
 }

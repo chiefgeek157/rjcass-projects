@@ -1,14 +1,15 @@
 package com.rjcass.depends2.basic;
 
-import com.rjcass.depends2.Layer;
-import com.rjcass.depends2.spi.SPILayer;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import com.rjcass.depends2.Layer;
+import com.rjcass.depends2.spi.SPILayer;
 
 public class BasicModelTest
 {

@@ -18,13 +18,11 @@ public class BasicEntityType implements SPIEntityType
         setTypeName(name);
     }
 
-    @Override
     public EntityType getSuperType()
     {
         return mSuperType;
     }
 
-    @Override
     public void setTypeName(String name)
     {
         if (name == null)
@@ -34,13 +32,11 @@ public class BasicEntityType implements SPIEntityType
         mName = name;
     }
 
-    @Override
     public String getTypeName()
     {
         return mName;
     }
 
-    @Override
     public void setSuperType(SPIEntityType type)
     {
         if (type == null)
@@ -64,7 +60,6 @@ public class BasicEntityType implements SPIEntityType
         mSuperType = type;
     }
 
-    @Override
     public boolean isSubtypeOf(EntityType type)
     {
         if (type == null)
@@ -80,7 +75,6 @@ public class BasicEntityType implements SPIEntityType
         return isSubtype;
     }
 
-    @Override
     public Set<String> getPropertyNames()
     {
         Set<String> props = new HashSet<String>(mPropertyNames);
@@ -91,7 +85,6 @@ public class BasicEntityType implements SPIEntityType
         return props;
     }
 
-    @Override
     public boolean validatePropertyName(String name)
     {
         boolean valid = mPropertyNames.contains(name);
@@ -102,7 +95,6 @@ public class BasicEntityType implements SPIEntityType
         return valid;
     }
 
-    @Override
     public void addPropertyName(String name)
     {
         if (mSuperType != null && mSuperType.validatePropertyName(name))

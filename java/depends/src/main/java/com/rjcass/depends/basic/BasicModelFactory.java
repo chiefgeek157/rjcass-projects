@@ -9,7 +9,6 @@ public class BasicModelFactory implements BuildableModelFactory
     {
     }
 
-    @Override
     public BuildableModel newInstance()
     {
         return new BasicModel();

@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="var" path="DEV_LIB/bcel-5.2/bcel-5.2.jar"/>
-	<classpathentry kind="var" path="DEV_LIB/spring-framework-2.5.3/dist/spring.jar"/>
-	<classpathentry kind="var" path="DEV_LIB/logging-log4j-1.2.14/dist/lib/log4j-1.2.14.jar"/>
-	<classpathentry kind="var" path="DEV_LIB/commons-logging-1.1.1/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="var" path="DEV_LIB/spring-framework-2.5.3/lib/jakarta-commons/commons-collections.jar"/>
-	<classpathentry kind="var" path="DEV_LIB/spring-framework-2.5.3/lib/concurrent/backport-util-concurrent.jar"/>
-	<classpathentry kind="var" path="DEV_LIB/spring-framework-2.5.3/lib/ant/ant.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

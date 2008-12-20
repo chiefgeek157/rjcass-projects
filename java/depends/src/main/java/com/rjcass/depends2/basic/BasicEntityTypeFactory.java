@@ -15,7 +15,6 @@ public class BasicEntityTypeFactory implements EntityTypeFactory
 		mTypes = new HashMap<String, EntityType>();
 	}
 
-	@Override
 	public final EntityType getType(String name)
 	{
 		if (name == null)
