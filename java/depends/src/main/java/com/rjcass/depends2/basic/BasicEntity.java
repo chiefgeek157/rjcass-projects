@@ -12,10 +12,11 @@ import com.rjcass.depends2.Entity;
 import com.rjcass.depends2.EntityType;
 import com.rjcass.depends2.spi.SPIDependency;
 import com.rjcass.depends2.spi.SPIEntity;
+import com.rjcass.depends2.spi.SPIEntityType;
 
 public class BasicEntity implements SPIEntity
 {
-	private String mName;
+	public String mName;
 	private EntityType mType;
 	private Set<SPIDependency> mDependencies;
 	private Set<SPIDependency> mDependents;
@@ -23,18 +24,24 @@ public class BasicEntity implements SPIEntity
 	private Set<SPIEntity> mDetails;
 	private Map<String, String> mProperties;
 
+	public BasicEntity()
+	{
+		mDependencies = new HashSet<SPIDependency>();
+		mDependents = new HashSet<SPIDependency>();
+		mDetails = new HashSet<SPIEntity>();
+		mProperties = new HashMap<String, String>();
+	}
+	
 	public BasicEntity(EntityType type, String name)
 	{
+		this();
+		
 		if (type == null)
 		{
 			throw new IllegalArgumentException("EntityType cannot be null");
 		}
 
 		mType = type;
-		mDependencies = new HashSet<SPIDependency>();
-		mDependents = new HashSet<SPIDependency>();
-		mDetails = new HashSet<SPIEntity>();
-		mProperties = new HashMap<String, String>();
 		setName(name);
 	}
 
@@ -199,6 +206,11 @@ public class BasicEntity implements SPIEntity
 		return mProperties.get(name);
 	}
 
+	public void setType(SPIEntityType type)
+	{
+		mType = type;
+	}
+	
 	public EntityType getType()
 	{
 		return mType;

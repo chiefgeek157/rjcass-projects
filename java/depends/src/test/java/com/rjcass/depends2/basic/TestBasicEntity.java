@@ -14,6 +14,7 @@ import com.rjcass.depends2.Entity;
 import com.rjcass.depends2.EntityFactory;
 import com.rjcass.depends2.EntityType;
 import com.rjcass.depends2.EntityTypeFactory;
+import com.rjcass.depends2.spi.SPIEntity;
 import com.rjcass.depends2.spi.SPIEntityType;
 
 public class TestBasicEntity
@@ -38,7 +39,7 @@ public class TestBasicEntity
 	public void setUp() throws Exception
 	{
 		mEntityTypeFactory = new BasicEntityTypeFactory();
-		mEntityFactory = new GenericEntityFactory("BasicEntity");
+		mEntityFactory = new GenericEntityFactory(BasicEntity.class.getName());
 
 		mType1 = mEntityTypeFactory.getType("Type 1");
 		mType2 = mEntityTypeFactory.getType("Type 2");
@@ -68,8 +69,8 @@ public class TestBasicEntity
 		Entity entity2 = mEntityFactory.createEntity(mType2, "Entity 2");
 		Entity entity11 = mEntityFactory.createEntity(mType11, "Entity 11");
 
-		((BasicEntity)entity2).setAbstraction(entity1);
-		((BasicEntity)entity11).setAbstraction(entity2);
+		((SPIEntity)entity2).setAbstraction(entity1);
+		((SPIEntity)entity11).setAbstraction(entity2);
 
 		assertEquals(entity1.getLevelOfAbstraction(), 0);
 		assertEquals(entity2.getLevelOfAbstraction(), 1);
@@ -87,9 +88,9 @@ public class TestBasicEntity
 		Entity entity2 = mEntityFactory.createEntity(mType2, "Entity 2");
 		Entity entity11 = mEntityFactory.createEntity(mType11, "Entity 11");
 
-		((BasicEntity)entity2).setAbstraction(entity1);
-		((BasicEntity)entity11).setAbstraction(entity2);
-		((BasicEntity)entity1).setAbstraction(entity11);
+		((SPIEntity)entity2).setAbstraction(entity1);
+		((SPIEntity)entity11).setAbstraction(entity2);
+		((SPIEntity)entity1).setAbstraction(entity11);
 	}
 
 	@Test

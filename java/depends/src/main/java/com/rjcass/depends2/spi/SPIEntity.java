@@ -11,4 +11,8 @@ public interface SPIEntity extends Entity
 	void addDetail(SPIEntity entity);
 
 	void removeDetail(SPIEntity entity);
+
+	void setName(String name);
+	
+	void setType(SPIEntityType type);
 }

@@ -4,6 +4,8 @@ import com.rjcass.depends2.DependsException;
 import com.rjcass.depends2.Entity;
 import com.rjcass.depends2.EntityFactory;
 import com.rjcass.depends2.EntityType;
+import com.rjcass.depends2.spi.SPIEntity;
+import com.rjcass.depends2.spi.SPIEntityType;
 
 public class GenericEntityFactory implements EntityFactory
 {
@@ -20,11 +22,13 @@ public class GenericEntityFactory implements EntityFactory
 
     public Entity createEntity(EntityType type, String name)
     {
-        Entity entity = null;
+        SPIEntity entity = null;
         try
         {
             Class<?> entityClass = Class.forName(mEntityClassName);
-            entity = (Entity)entityClass.newInstance();
+            entity = (SPIEntity)entityClass.newInstance();
+            entity.setName(name);
+            entity.setType((SPIEntityType)type);
         }
         catch (InstantiationException e)
         {

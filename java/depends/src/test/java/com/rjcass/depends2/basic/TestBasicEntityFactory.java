@@ -37,7 +37,7 @@ public class TestBasicEntityFactory
 		EntityTypeFactory typeFactory = new BasicEntityTypeFactory();
 		EntityType type1 = typeFactory.getType("Type1");
 
-		EntityFactory factory = new GenericEntityFactory("BasicEntity");
+		EntityFactory factory = new GenericEntityFactory(BasicEntity.class.getName());
 		Entity entity1 = factory.createEntity(type1, "Entity1");
 
 		assertNotNull(entity1);
