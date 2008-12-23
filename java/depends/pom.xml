@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>depends</name>
-    <url>http://maven.apache.org</url>
+    <url>http://code.google.com/p/rjcass-projects/</url>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -63,14 +63,18 @@
             </exclusions>
         </dependency>
     </dependencies>
+    <organization>
+    	<name>RJCass</name>
+    	<url>http://rjcass.com</url>
+    </organization>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
         </plugins>

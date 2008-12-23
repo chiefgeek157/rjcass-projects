@@ -2,7 +2,6 @@ package com.rjcass.depends2.basic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,14 +18,6 @@ import com.rjcass.depends2.spi.SPIEntityType;
 
 public class TestBasicEntity
 {
-	private EntityTypeFactory mEntityTypeFactory;
-	private EntityFactory mEntityFactory;
-	private EntityType mType1;
-	private EntityType mType2;
-	private EntityType mType11;
-	private EntityType mType12;
-	private EntityType mType111;
-
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{}
@@ -34,6 +25,16 @@ public class TestBasicEntity
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception
 	{}
+
+	private EntityTypeFactory mEntityTypeFactory;
+	private EntityFactory mEntityFactory;
+	private EntityType mType1;
+	private EntityType mType2;
+	private EntityType mType11;
+
+	private EntityType mType12;
+
+	private EntityType mType111;
 
 	@Before
 	public void setUp() throws Exception
@@ -62,6 +63,18 @@ public class TestBasicEntity
 	public void tearDown() throws Exception
 	{}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testAbstractionCycle() throws IllegalArgumentException
+	{
+		Entity entity1 = mEntityFactory.createEntity(mType1, "Entity 1");
+		Entity entity2 = mEntityFactory.createEntity(mType2, "Entity 2");
+		Entity entity11 = mEntityFactory.createEntity(mType11, "Entity 11");
+
+		((SPIEntity)entity2).setAbstraction(entity1);
+		((SPIEntity)entity11).setAbstraction(entity2);
+		((SPIEntity)entity1).setAbstraction(entity11);
+	}
+
 	@Test
 	public void testAbstractions()
 	{
@@ -81,40 +94,19 @@ public class TestBasicEntity
 		assertEquals(entity2, entity11.getAbstraction());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testAbstractionCycle() throws IllegalArgumentException
-	{
-		Entity entity1 = mEntityFactory.createEntity(mType1, "Entity 1");
-		Entity entity2 = mEntityFactory.createEntity(mType2, "Entity 2");
-		Entity entity11 = mEntityFactory.createEntity(mType11, "Entity 11");
-
-		((SPIEntity)entity2).setAbstraction(entity1);
-		((SPIEntity)entity11).setAbstraction(entity2);
-		((SPIEntity)entity1).setAbstraction(entity11);
-	}
-
 	@Test
 	public void testDetails()
-	{
-		fail("Not yet implemented");
-	}
+	{}
 
 	@Test
 	public void testGetProperties()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testSetProperty()
-	{
-		fail("Not yet implemented");
-	}
+	{}
 
 	@Test
 	public void testRemoveProperty()
-	{
-		fail("Not yet implemented");
-	}
+	{}
 
+	@Test
+	public void testSetProperty()
+	{}
 }

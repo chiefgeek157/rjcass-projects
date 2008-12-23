@@ -13,10 +13,6 @@ import com.rjcass.depends2.spi.SPILayer;
 
 public class BasicModelTest
 {
-    public BasicModelTest()
-    {
-    }
-
     @BeforeClass
     public static void setUpClass() throws Exception
     {
@@ -24,6 +20,10 @@ public class BasicModelTest
 
     @AfterClass
     public static void tearDownClass() throws Exception
+    {
+    }
+
+    public BasicModelTest()
     {
     }
 

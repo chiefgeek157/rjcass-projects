@@ -33,31 +33,32 @@ public class TestBasicEntityType
 	public void tearDown() throws Exception
 	{}
 
-	@Test
-	public void testSuperType()
+	@Test(expected = IllegalArgumentException.class)
+	public void testCannotAddPropertyTwice() throws IllegalArgumentException
 	{
 		EntityTypeFactory factory = new BasicEntityTypeFactory();
 
-		EntityType superType = factory.getType("SuperType");
-		EntityType sub1Type = factory.getType("Sub1Type");
-		EntityType sub2Type = factory.getType("Sub2Type");
-		EntityType sub3Type = factory.getType("Sub3Type");
-		EntityType sub4Type = factory.getType("Sub4Type");
+		EntityType type1 = factory.getType("AnyType");
+		((BasicEntityType)type1).addPropertyName("PropertyName1");
 
-		((BasicEntityType)sub1Type).setSuperType((SPIEntityType)superType);
-		((BasicEntityType)sub2Type).setSuperType((SPIEntityType)sub1Type);
-		((BasicEntityType)sub3Type).setSuperType((SPIEntityType)sub2Type);
-		((BasicEntityType)sub4Type).setSuperType((SPIEntityType)sub3Type);
+		EntityType type2 = factory.getType("SubType");
+		((BasicEntityType)type2).setSuperType((SPIEntityType)type1);
 
-		assertEquals(superType, sub1Type.getSuperType());
-		assertEquals(sub1Type, sub2Type.getSuperType());
-		assertEquals(sub2Type, sub3Type.getSuperType());
-		assertEquals(sub3Type, sub4Type.getSuperType());
+		((BasicEntityType)type2).addPropertyName("PropertyName1");
+	}
 
-		assertTrue(sub1Type.isSubtypeOf(superType));
-		assertTrue(sub2Type.isSubtypeOf(superType));
-		assertTrue(sub3Type.isSubtypeOf(superType));
-		assertTrue(sub4Type.isSubtypeOf(superType));
+	@Test(expected = IllegalArgumentException.class)
+	public void testCannotAddSuperWithSameProperty() throws IllegalArgumentException
+	{
+		EntityTypeFactory factory = new BasicEntityTypeFactory();
+
+		EntityType type1 = factory.getType("AnyType");
+		((BasicEntityType)type1).addPropertyName("PropertyName1");
+
+		EntityType type2 = factory.getType("SubType");
+		((BasicEntityType)type2).addPropertyName("PropertyName1");
+
+		((BasicEntityType)type2).setSuperType((SPIEntityType)type1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -103,31 +104,30 @@ public class TestBasicEntityType
 		assertEquals(propertyNames2.size(), 4);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testCannotAddPropertyTwice() throws IllegalArgumentException
+	@Test
+	public void testSuperType()
 	{
 		EntityTypeFactory factory = new BasicEntityTypeFactory();
 
-		EntityType type1 = factory.getType("AnyType");
-		((BasicEntityType)type1).addPropertyName("PropertyName1");
+		EntityType superType = factory.getType("SuperType");
+		EntityType sub1Type = factory.getType("Sub1Type");
+		EntityType sub2Type = factory.getType("Sub2Type");
+		EntityType sub3Type = factory.getType("Sub3Type");
+		EntityType sub4Type = factory.getType("Sub4Type");
 
-		EntityType type2 = factory.getType("SubType");
-		((BasicEntityType)type2).setSuperType((SPIEntityType)type1);
+		((BasicEntityType)sub1Type).setSuperType((SPIEntityType)superType);
+		((BasicEntityType)sub2Type).setSuperType((SPIEntityType)sub1Type);
+		((BasicEntityType)sub3Type).setSuperType((SPIEntityType)sub2Type);
+		((BasicEntityType)sub4Type).setSuperType((SPIEntityType)sub3Type);
 
-		((BasicEntityType)type2).addPropertyName("PropertyName1");
-	}
+		assertEquals(superType, sub1Type.getSuperType());
+		assertEquals(sub1Type, sub2Type.getSuperType());
+		assertEquals(sub2Type, sub3Type.getSuperType());
+		assertEquals(sub3Type, sub4Type.getSuperType());
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testCannotAddSuperWithSameProperty() throws IllegalArgumentException
-	{
-		EntityTypeFactory factory = new BasicEntityTypeFactory();
-
-		EntityType type1 = factory.getType("AnyType");
-		((BasicEntityType)type1).addPropertyName("PropertyName1");
-
-		EntityType type2 = factory.getType("SubType");
-		((BasicEntityType)type2).addPropertyName("PropertyName1");
-
-		((BasicEntityType)type2).setSuperType((SPIEntityType)type1);
+		assertTrue(sub1Type.isSubtypeOf(superType));
+		assertTrue(sub2Type.isSubtypeOf(superType));
+		assertTrue(sub3Type.isSubtypeOf(superType));
+		assertTrue(sub4Type.isSubtypeOf(superType));
 	}
 }
