@@ -1,4 +1,6 @@
-package com.rjcass.graph;
+package com.rjcass.graph.basic;
+
+import com.rjcass.graph.AdjacencyFilter;
 
 public class TypeAdjacencyFilter implements AdjacencyFilter
 {

@@ -7,23 +7,27 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.rjcass.graph.basic.BasicGraph;
+import com.rjcass.graph.basic.BasicModel;
+import com.rjcass.graph.basic.Node;
+
 public class GraphTest
 {
-    private Model mModel;
+    private BasicModel mBasicModel;
     private Node mNode;
 
     @Before public void setUp()
     {
-        mModel = new Model();
-        mNode = mModel.addNode();
+        mBasicModel = new BasicModel();
+        mNode = mBasicModel.addNode();
     }
 
     @Test public void testRemove()
     {
-        Graph graph = mNode.getGraph();
+        BasicGraph graph = mNode.getGraph();
         graph.remove();
         assertFalse(graph.isValid());
-        Set<Graph> graphs = mModel.getGraphs();
+        Set<BasicGraph> graphs = mBasicModel.getGraphs();
         assertFalse(graphs.contains(graph));
     }
 }

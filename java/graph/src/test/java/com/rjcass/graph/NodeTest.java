@@ -7,23 +7,29 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.rjcass.graph.basic.Arc;
+import com.rjcass.graph.basic.BasicGraph;
+import com.rjcass.graph.basic.BasicModel;
+import com.rjcass.graph.basic.ModelEntityFactory;
+import com.rjcass.graph.basic.Node;
+
 public class NodeTest
 {
     @Test public void testJoinTo()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
-        Node node3 = model.addNode();
-        Graph graph1 = node1.getGraph();
-        Graph graph2 = node2.getGraph();
-        Graph graph3 = node3.getGraph();
-        assertTrue(model.getGraphCount() == 3);
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
+        Node node3 = basicModel.addNode();
+        BasicGraph graph1 = node1.getGraph();
+        BasicGraph graph2 = node2.getGraph();
+        BasicGraph graph3 = node3.getGraph();
+        assertTrue(basicModel.getGraphCount() == 3);
         node1.joinTo(node2);
         node2.joinTo(node3);
         node3.joinTo(node1);
-        assertTrue(model.getGraphCount() == 1);
+        assertTrue(basicModel.getGraphCount() == 1);
         assertTrue(graph1.isValid());
         assertFalse(graph2.isValid());
         assertFalse(graph3.isValid());
@@ -33,17 +39,17 @@ public class NodeTest
     @Test(expected = IllegalArgumentException.class) public void testJoinToFailToSelf()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
         node1.joinTo(node1);
     }
 
     @Test(expected = IllegalArgumentException.class) public void testJoinToFailToSameNode()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
         node1.joinTo(node2);
         node1.joinTo(node2);
     }
@@ -51,9 +57,9 @@ public class NodeTest
     @Test(expected = IllegalArgumentException.class) public void testJoinToFailInvalidNode()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
         node2.remove();
         node1.joinTo(node2);
     }
@@ -61,9 +67,9 @@ public class NodeTest
     @Test(expected = IllegalArgumentException.class) public void testJoinToFailWrongModel()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model1 = factory.createModel();
+        BasicModel model1 = factory.createModel();
         Node node1 = model1.addNode();
-        Model model2 = factory.createModel();
+        BasicModel model2 = factory.createModel();
         Node node2 = model2.addNode();
         node1.joinTo(node2);
     }
@@ -71,50 +77,50 @@ public class NodeTest
     @Test public void testDisconnectFrom()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        assertTrue(model.getGraphCount() == 1);
-        Node node2 = model.addNode();
-        assertTrue(model.getGraphCount() == 2);
-        Node node3 = model.addNode();
-        assertTrue(model.getGraphCount() == 3);
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        assertTrue(basicModel.getGraphCount() == 1);
+        Node node2 = basicModel.addNode();
+        assertTrue(basicModel.getGraphCount() == 2);
+        Node node3 = basicModel.addNode();
+        assertTrue(basicModel.getGraphCount() == 3);
         node1.joinTo(node2);
-        assertTrue(model.getGraphCount() == 2);
+        assertTrue(basicModel.getGraphCount() == 2);
         node2.joinTo(node3);
-        assertTrue(model.getGraphCount() == 1);
+        assertTrue(basicModel.getGraphCount() == 1);
         node3.joinTo(node1);
-        assertTrue(model.getGraphCount() == 1);
+        assertTrue(basicModel.getGraphCount() == 1);
         node1.disconnectFrom(node2);
-        assertTrue(model.getGraphCount() == 1);
+        assertTrue(basicModel.getGraphCount() == 1);
         node1.disconnectFrom(node3);
-        assertTrue(model.getGraphCount() == 2);
+        assertTrue(basicModel.getGraphCount() == 2);
     }
 
     @Test public void testRemove()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
-        Node node3 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
+        Node node3 = basicModel.addNode();
         node1.joinTo(node2);
         node2.joinTo(node3);
         node3.joinTo(node1);
         node1.remove();
-        assertTrue(model.getGraphCount() == 1);
+        assertTrue(basicModel.getGraphCount() == 1);
         assertFalse(node1.isValid());
     }
 
     @Test public void testGetAdjacentNodes()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
-        Node node3 = model.addNode();
-        Node node4 = model.addNode();
-        Node node5 = model.addNode();
-        Node node6 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
+        Node node3 = basicModel.addNode();
+        Node node4 = basicModel.addNode();
+        Node node5 = basicModel.addNode();
+        Node node6 = basicModel.addNode();
         node1.joinTo(node2);
         node1.joinTo(node3);
         node1.joinTo(node4);
@@ -130,11 +136,11 @@ public class NodeTest
     @Test public void testIsAdjacentTo()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
-        Node node3 = model.addNode();
-        Node node4 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
+        Node node3 = basicModel.addNode();
+        Node node4 = basicModel.addNode();
         node1.joinTo(node2);
         node2.joinTo(node3);
         node3.joinTo(node4);
@@ -147,11 +153,11 @@ public class NodeTest
     @Test public void testGetAdjacentArc()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
-        Node node3 = model.addNode();
-        Node node4 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
+        Node node3 = basicModel.addNode();
+        Node node4 = basicModel.addNode();
         Arc arc1 = node1.joinTo(node2);
         node2.joinTo(node3);
         node3.joinTo(node4);
@@ -163,11 +169,11 @@ public class NodeTest
     @Test public void testGetAdjacentArcWithFilter()
     {
         ModelEntityFactory factory = new ModelEntityFactory();
-        Model model = factory.createModel();
-        Node node1 = model.addNode();
-        Node node2 = model.addNode();
-        Node node3 = model.addNode();
-        Node node4 = model.addNode();
+        BasicModel basicModel = factory.createModel();
+        Node node1 = basicModel.addNode();
+        Node node2 = basicModel.addNode();
+        Node node3 = basicModel.addNode();
+        Node node4 = basicModel.addNode();
         Arc arc1 = node1.joinTo(node2);
         node2.joinTo(node3);
         node3.joinTo(node4);
