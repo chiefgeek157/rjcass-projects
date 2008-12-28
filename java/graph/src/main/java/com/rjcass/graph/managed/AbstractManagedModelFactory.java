@@ -9,26 +9,23 @@ import com.rjcass.graph.ModelFactoryListener;
 public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 {
 	private Set<ModelFactoryListener> mListeners;
-	private ModelEntityFactory mEntityFactory;
+	private ManagedEntityFactory mEntityFactory;
 
-	@Override
 	public void addModelFactoryListener(ModelFactoryListener listener)
 	{
 		mListeners.add(listener);
 	}
 
-	@Override
 	public void removeModelFactoryListener(ModelFactoryListener listener)
 	{
 		mListeners.remove(listener);
 	}
 
-	public void SetEntityFactory(ModelEntityFactory factory)
+	public void setEntityFactory(ManagedEntityFactory factory)
 	{
 		mEntityFactory = factory;
 	}
 
-	@Override
 	public final Model createModel()
 	{
 		ManagedModel model = doCreateModel();
@@ -42,7 +39,7 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 		mListeners = new HashSet<ModelFactoryListener>();
 	}
 
-	protected ModelEntityFactory getEntityFactory()
+	protected ManagedEntityFactory getEntityFactory()
 	{
 		return mEntityFactory;
 	}

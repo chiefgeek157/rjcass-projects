@@ -1,12 +1,12 @@
 package com.rjcass.graph.generic;
 
 import com.rjcass.graph.GraphException;
-import com.rjcass.graph.managed.AbstractModelEntityFactory;
+import com.rjcass.graph.managed.AbstractManagedEntityFactory;
 import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class GenericModelEntityFactory extends AbstractModelEntityFactory
+public class GenericModelEntityFactory extends AbstractManagedEntityFactory
 {
 	private String mGraphClassName;
 	private String mNodeClassName;
@@ -14,6 +14,21 @@ public class GenericModelEntityFactory extends AbstractModelEntityFactory
 
 	public GenericModelEntityFactory()
 	{}
+
+	public void setGraphClassName(String graphClassName)
+	{
+		mGraphClassName = graphClassName;
+	}
+
+	public void setNodeClassName(String nodeClassName)
+	{
+		mNodeClassName = nodeClassName;
+	}
+
+	public void setArcClassName(String arcClassName)
+	{
+		mArcClassName = arcClassName;
+	}
 
 	@Override
 	protected ManagedArc doCreateArc()

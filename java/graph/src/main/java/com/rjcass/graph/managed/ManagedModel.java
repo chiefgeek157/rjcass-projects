@@ -4,7 +4,7 @@ import com.rjcass.graph.Model;
 
 public interface ManagedModel extends Model
 {
-	public void setEntityFactory(ModelEntityFactory factory);
+	public void setEntityFactory(ManagedEntityFactory factory);
 
 	ManagedArc addArc(ManagedNode node1, ManagedNode node2);
 

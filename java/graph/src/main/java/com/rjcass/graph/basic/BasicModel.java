@@ -18,11 +18,11 @@ import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedNode;
-import com.rjcass.graph.managed.ModelEntityFactory;
+import com.rjcass.graph.managed.ManagedEntityFactory;
 
 public class BasicModel extends AbstractModelEntity implements ManagedModel
 {
-	private ModelEntityFactory mEntityFactory;
+	private ManagedEntityFactory mEntityFactory;
 	private Set<ManagedGraph> mGraphs;
 	private Set<ManagedNode> mNodes;
 	private Set<ManagedArc> mArcs;
@@ -36,7 +36,7 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 		mListeners = new HashSet<ModelListener>();
 	}
 
-	public void setEntityFactory(ModelEntityFactory factory)
+	public void setEntityFactory(ManagedEntityFactory factory)
 	{
 		mEntityFactory = factory;
 	}

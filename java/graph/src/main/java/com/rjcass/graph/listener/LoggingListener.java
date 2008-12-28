@@ -15,9 +15,9 @@ import com.rjcass.graph.NodeListener;
 import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
-import com.rjcass.graph.managed.ModelEntityFactoryListener;
+import com.rjcass.graph.managed.ManagedEntityFactoryListener;
 
-public class LoggingListener implements ModelFactoryListener, ModelEntityFactoryListener, ModelListener, GraphListener,
+public class LoggingListener implements ModelFactoryListener, ManagedEntityFactoryListener, ModelListener, GraphListener,
 		NodeListener, ArcListener
 {
 	private static Log sLog = LogFactory.getLog(LoggingListener.class);

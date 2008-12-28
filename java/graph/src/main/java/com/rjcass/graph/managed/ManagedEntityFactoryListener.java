@@ -1,6 +1,6 @@
 package com.rjcass.graph.managed;
 
-public interface ModelEntityFactoryListener
+public interface ManagedEntityFactoryListener
 {
 	void graphCreated(ManagedGraph graph);
 

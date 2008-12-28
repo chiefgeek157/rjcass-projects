@@ -11,7 +11,7 @@ import com.rjcass.graph.generic.GenericModelEntityFactory;
 import com.rjcass.graph.generic.GenericModelFactory;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedModel;
-import com.rjcass.graph.managed.ModelEntityFactory;
+import com.rjcass.graph.managed.ManagedEntityFactory;
 
 public class NodeTest
 {
@@ -19,7 +19,7 @@ public class NodeTest
 	public void testJoinTo()
 	{
 		ModelFactory modelFactory = new GenericModelFactory();
-		ModelEntityFactory entityFactory = new GenericModelEntityFactory();
+		ManagedEntityFactory entityFactory = new GenericModelEntityFactory();
 		Model model = modelFactory.createModel();
 		Node node1 = model.addNode();
 		Node node2 = model.addNode();
@@ -41,7 +41,7 @@ public class NodeTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailToSelf()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		node1.joinTo(node1);
@@ -50,7 +50,7 @@ public class NodeTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailToSameNode()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();
@@ -61,7 +61,7 @@ public class NodeTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailInvalidNode()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();
@@ -72,7 +72,7 @@ public class NodeTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailWrongModel()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel model1 = factory.createModel();
 		Node node1 = model1.addNode();
 		ManagedModel model2 = factory.createModel();
@@ -83,7 +83,7 @@ public class NodeTest
 	@Test
 	public void testDisconnectFrom()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		assertTrue(basicModel.getGraphCount() == 1);
@@ -106,7 +106,7 @@ public class NodeTest
 	@Test
 	public void testRemove()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();
@@ -122,7 +122,7 @@ public class NodeTest
 	@Test
 	public void testGetAdjacentNodes()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();
@@ -145,7 +145,7 @@ public class NodeTest
 	@Test
 	public void testIsAdjacentTo()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();
@@ -163,7 +163,7 @@ public class NodeTest
 	@Test
 	public void testGetAdjacentArc()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();
@@ -180,7 +180,7 @@ public class NodeTest
 	@Test
 	public void testGetAdjacentArcWithFilter()
 	{
-		ModelEntityFactory factory = new ModelEntityFactory();
+		ManagedEntityFactory factory = new ManagedEntityFactory();
 		ManagedModel basicModel = factory.createModel();
 		Node node1 = basicModel.addNode();
 		Node node2 = basicModel.addNode();

@@ -3,18 +3,16 @@ package com.rjcass.graph.managed;
 import java.util.HashSet;
 import java.util.Set;
 
-
-
-public abstract class AbstractModelEntityFactory implements ModelEntityFactory
+public abstract class AbstractManagedEntityFactory implements ManagedEntityFactory
 {
-	private Set<ModelEntityFactoryListener> mListeners;
+	private Set<ManagedEntityFactoryListener> mListeners;
 
-	public void addListener(ModelEntityFactoryListener listener)
+	public void addListener(ManagedEntityFactoryListener listener)
 	{
 		mListeners.add(listener);
 	}
 
-	public void removeListener(ModelEntityFactoryListener listener)
+	public void removeListener(ManagedEntityFactoryListener listener)
 	{
 		mListeners.remove(listener);
 	}
@@ -42,28 +40,28 @@ public abstract class AbstractModelEntityFactory implements ModelEntityFactory
 
 	public void fireGraphCreated(ManagedGraph graph)
 	{
-		Set<ModelEntityFactoryListener> listeners = new HashSet<ModelEntityFactoryListener>(mListeners);
-		for (ModelEntityFactoryListener listener : listeners)
+		Set<ManagedEntityFactoryListener> listeners = new HashSet<ManagedEntityFactoryListener>(mListeners);
+		for (ManagedEntityFactoryListener listener : listeners)
 			listener.graphCreated(graph);
 	}
 
 	public void fireNodeCreated(ManagedNode node)
 	{
-		Set<ModelEntityFactoryListener> listeners = new HashSet<ModelEntityFactoryListener>(mListeners);
-		for (ModelEntityFactoryListener listener : listeners)
+		Set<ManagedEntityFactoryListener> listeners = new HashSet<ManagedEntityFactoryListener>(mListeners);
+		for (ManagedEntityFactoryListener listener : listeners)
 			listener.nodeCreated(node);
 	}
 
 	public void fireArcCreated(ManagedArc arc)
 	{
-		Set<ModelEntityFactoryListener> listeners = new HashSet<ModelEntityFactoryListener>(mListeners);
-		for (ModelEntityFactoryListener listener : listeners)
+		Set<ManagedEntityFactoryListener> listeners = new HashSet<ManagedEntityFactoryListener>(mListeners);
+		for (ManagedEntityFactoryListener listener : listeners)
 			listener.arcCreated(arc);
 	}
 
-	protected AbstractModelEntityFactory()
+	protected AbstractManagedEntityFactory()
 	{
-		mListeners = new HashSet<ModelEntityFactoryListener>();
+		mListeners = new HashSet<ManagedEntityFactoryListener>();
 	}
 
 	protected abstract ManagedGraph doCreateGraph();
