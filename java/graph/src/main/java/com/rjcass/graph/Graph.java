@@ -2,16 +2,19 @@ package com.rjcass.graph;
 
 import java.util.Set;
 
-
 public interface Graph extends ModelEntity
 {
 	Model getModel();
 
-	int getNodeCount();
-
-	Set<Node> getNodes();
-
 	void remove();
+
+	Set<? extends Node> getNodes();
+
+	Set<? extends Node> getNodes(NodeFilter filter);
+
+	Set<? extends Arc> getArcs();
+
+	Set<? extends Arc> getArcs(ArcFilter filter);
 
 	void addListener(GraphListener listener);
 

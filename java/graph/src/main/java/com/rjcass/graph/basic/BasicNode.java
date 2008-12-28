@@ -1,206 +1,290 @@
 package com.rjcass.graph.basic;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.rjcass.graph.AbstractModelEntity;
 import com.rjcass.graph.AdjacencyFilter;
 import com.rjcass.graph.Arc;
+import com.rjcass.graph.ArcFilter;
+import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
+import com.rjcass.graph.NodeFilter;
 import com.rjcass.graph.NodeListener;
-import com.rjcass.graph.basic.manage.ManagedNode;
+import com.rjcass.graph.filter.DirectedArcFilter;
+import com.rjcass.graph.managed.ManagedArc;
+import com.rjcass.graph.managed.ManagedGraph;
+import com.rjcass.graph.managed.ManagedNode;
 
 public class BasicNode extends AbstractModelEntity implements ManagedNode
 {
-    private BasicGraph mGraph;
-    private Set<Arc> mArcs;
-    private Set<NodeListener> mListeners;
+	public ManagedGraph mGraph;
+	public Set<ManagedArc> mArcs;
+	public Set<NodeListener> mListeners;
 
-    @Override public boolean isValid()
-    {
-        return(mGraph != null && mGraph.isValid() && doIsValid());
-    }
+	public BasicNode()
+	{
+		mArcs = new HashSet<ManagedArc>();
+		mListeners = new HashSet<NodeListener>();
+	}
 
-    public BasicGraph getGraph()
-    {
-        validate();
-        return mGraph;
-    }
+	public boolean isValid()
+	{
+		return (mGraph != null && mGraph.isValid() && doIsValid());
+	}
 
-    public Arc joinTo(Node node)
-    {
-        validate();
-        if(!node.isValid()) throw new IllegalArgumentException("Invalid node");
-        if(getGraph().getModel() != node.getGraph().getModel())
-            throw new IllegalArgumentException(
-                    "Node must be part of this BasicModel");
-        if(this == node)
-            throw new IllegalArgumentException("Cannot join to self");
-        if(isAdjacentTo(node))
-            throw new IllegalArgumentException("Already connected to node");
+	public Graph getGraph()
+	{
+		return getManagedGraph();
+	}
 
-        joinToBefore(node);
-        Arc arc = getGraph().getModel().createArc(this, node);
-        joinToAfter(arc);
+	public Arc joinTo(Node node)
+	{
+		validate();
+		if (!node.isValid())
+			throw new IllegalArgumentException("Invalid node");
+		if (getGraph().getModel() != node.getGraph().getModel())
+			throw new IllegalArgumentException("Nodes must be part of the same Model");
+		if (this == node)
+			throw new IllegalArgumentException("Cannot join Node to itself");
+		if (isAdjacentTo(node))
+			throw new IllegalArgumentException("Already connected to given Node");
 
-        return arc;
-    }
+		ManagedArc arc = getManagedGraph().getManagedModel().addArc(this, (ManagedNode)node);
 
-    public void disconnectFrom(Node node)
-    {
-        validate();
-        if(!node.isValid()) throw new IllegalArgumentException("Invalid node");
-        Arc arc = getAdjacentArc(node);
-        if(arc == null)
-            throw new IllegalArgumentException("Not connected to node");
-        disconnectFromBefore(arc);
-        arc.remove();
-        disconnectFromAfter(arc);
-    }
+		return arc;
+	}
 
-    public void remove()
-    {
-        validate();
-        removeBefore();
-        for(Node node : getAdjacentNodes())
-        {
-            disconnectFrom(node);
-        }
-        mGraph.removeNode(this);
-        removeAfter();
-        fireRemoved();
-    }
+	public Arc joinTo(Node node, boolean directed)
+	{
+		Arc arc = joinTo(node);
+		arc.setDirection(this, Arc.Direction.OUTBOUND);
 
-    public Set<Node> getAdjacentNodes()
-    {
-        return getAdjacentNodes(null);
-    }
+		return arc;
+	}
 
-    public Set<Node> getAdjacentNodes(AdjacencyFilter filter)
-    {
-        validate();
-        Set<Node> nodes = new HashSet<Node>();
-        for(Arc arc : mArcs)
-        {
-            Node node = arc.getOtherNode(this);
-            if(filter == null || filter != null && filter.passes(arc, node))
-                nodes.add(arc.getOtherNode(this));
-        }
-        return nodes;
-    }
+	public void disconnectFrom(Node node)
+	{
+		validate();
+		if (!node.isValid())
+			throw new IllegalArgumentException("Invalid node");
 
-    public boolean isAdjacentTo(Node node)
-    {
-        return(getAdjacentArc(node) != null);
-    }
+		Arc arc = getConnectingArc(node);
+		if (arc == null)
+			throw new IllegalArgumentException("Not connected to node");
 
-    public Arc getAdjacentArc(Node node)
-    {
-        validate();
-        Arc result = null;
-        if(node != null && getGraph() == node.getGraph())
-        {
-            for(Arc arc : mArcs)
-            {
-                if(arc.getOtherNode(this) == node)
-                {
-                    result = arc;
-                    break;
-                }
-            }
-        }
-        return result;
-    }
+		arc.remove();
+	}
 
-    public void addListener(NodeListener listener)
-    {
-        mListeners.add(listener);
-    }
+	public void remove()
+	{
+		validate();
+		for (ManagedNode node : getAdjacentManagedNodes())
+			disconnectFrom(node);
 
-    public void removeListener(NodeListener listener)
-    {
-        mListeners.remove(listener);
-    }
+		mGraph.removeNode(this);
+		fireRemoved();
+	}
 
-    protected BasicNode()
-    {
-        mArcs = new HashSet<Arc>();
-        mListeners = new HashSet<NodeListener>();
-    }
+	public Arc getConnectingArc(Node node)
+	{
+		validate();
+		Arc result = null;
+		if (node != null && getGraph() == node.getGraph())
+		{
+			for (Arc arc : mArcs)
+			{
+				if (arc.getOtherNode(this) == node)
+				{
+					result = arc;
+					break;
+				}
+			}
+		}
+		return result;
+	}
 
-    void setGraph(BasicGraph graph)
-    {
-        if(graph != mGraph)
-        {
-            BasicGraph oldGraph = mGraph;
-            mGraph = graph;
-            fireGraphSet(oldGraph, graph);
-        }
-    }
+	public Set<? extends Arc> getArcs()
+	{
+		validate();
+		return Collections.unmodifiableSet(mArcs);
+	}
 
-    void addArc(Arc arc)
-    {
-        if(mArcs.add(arc)) fireArcAdded(arc);
-    }
+	public Set<? extends Arc> getInboundArcs()
+	{
+		return getArcs(new DirectedArcFilter(this, Arc.Direction.INBOUND));
+	}
 
-    void removeArc(Arc arc)
-    {
-        if(mArcs.remove(arc)) fireArcRemoved(arc);
-    }
+	public Set<? extends Arc> getOutboundArcs()
+	{
+		return getArcs(new DirectedArcFilter(this, Arc.Direction.OUTBOUND));
+	}
 
-    protected boolean doIsValid()
-    {
-        return true;
-    }
+	public Set<? extends Arc> getArcs(ArcFilter filter)
+	{
+		validate();
+		Set<ManagedArc> arcs = new HashSet<ManagedArc>();
+		for (ManagedArc arc : mArcs)
+			if (filter.passes(arc))
+				arcs.add(arc);
+		return arcs;
+	}
 
-    protected void joinToBefore(Node node)
-    {
-    }
+	public Set<? extends Arc> getArcs(NodeFilter filter)
+	{
+		validate();
+		Set<ManagedArc> arcs = new HashSet<ManagedArc>();
+		for (ManagedArc arc : mArcs)
+			if (filter.passes(arc.getOtherNode(this)))
+				arcs.add(arc);
+		return arcs;
+	}
 
-    protected void joinToAfter(Arc arc)
-    {
-    }
+	public Set<? extends Arc> getArcs(AdjacencyFilter filter)
+	{
+		validate();
+		Set<ManagedArc> arcs = new HashSet<ManagedArc>();
+		for (ManagedArc arc : mArcs)
+			if (filter.passes(arc, arc.getOtherNode(this)))
+				arcs.add(arc);
+		return arcs;
+	}
 
-    protected void disconnectFromBefore(Arc arc)
-    {
-    }
+	public boolean isAdjacentTo(Node node)
+	{
+		validate();
+		return (getConnectingArc(node) != null);
+	}
 
-    protected void disconnectFromAfter(Arc arc)
-    {
-    }
+	public Set<? extends Node> getAdjacentNodes()
+	{
+		return getAdjacentManagedNodes();
+	}
 
-    protected void removeBefore()
-    {
-    }
+	public Set<? extends Node> getInboundNodes()
+	{
+		return getAdjacentNodes(new DirectedArcFilter(this, Arc.Direction.INBOUND));
+	}
 
-    protected void removeAfter()
-    {
-    }
+	public Set<? extends Node> getOutboundNodes()
+	{
+		return getAdjacentNodes(new DirectedArcFilter(this, Arc.Direction.OUTBOUND));
+	}
 
-    private void fireGraphSet(BasicGraph oldGraph, BasicGraph newGraph)
-    {
-        Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
-        for(NodeListener listener : listeners)
-            listener.graphSet(this, oldGraph, newGraph);
-    }
+	public Set<? extends Node> getAdjacentNodes(ArcFilter filter)
+	{
+		validate();
+		Set<ManagedNode> nodes = new HashSet<ManagedNode>();
+		for (ManagedArc arc : mArcs)
+			if (filter.passes(arc))
+				nodes.add(arc.getOtherManagedNode(this));
+		return nodes;
+	}
 
-    private void fireArcAdded(Arc arc)
-    {
-        Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
-        for(NodeListener listener : listeners)
-            listener.arcAdded(this, arc);
-    }
+	public Set<? extends Node> getAdjacentNodes(NodeFilter filter)
+	{
+		validate();
+		Set<ManagedNode> nodes = new HashSet<ManagedNode>();
+		for (ManagedArc arc : mArcs)
+		{
+			ManagedNode otherNode = arc.getOtherManagedNode(this);
+			if (filter.passes(otherNode))
+				nodes.add(otherNode);
+		}
+		return nodes;
+	}
 
-    private void fireArcRemoved(Arc arc)
-    {
-        Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
-        for(NodeListener listener : listeners)
-            listener.arcRemoved(this, arc);
-    }
+	public Set<? extends Node> getAdjacentNodes(AdjacencyFilter filter)
+	{
+		validate();
+		Set<ManagedNode> nodes = new HashSet<ManagedNode>();
+		for (ManagedArc arc : mArcs)
+		{
+			ManagedNode otherNode = arc.getOtherManagedNode(this);
+			if (filter.passes(arc, otherNode))
+				nodes.add(otherNode);
+		}
+		return nodes;
+	}
 
-    private void fireRemoved()
-    {
-        Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
-        for(NodeListener listener : listeners)
-            listener.removed(this);
-    }
+	public void addListener(NodeListener listener)
+	{
+		mListeners.add(listener);
+	}
+
+	public void removeListener(NodeListener listener)
+	{
+		mListeners.remove(listener);
+	}
+
+	public ManagedGraph getManagedGraph()
+	{
+		validate();
+		return mGraph;
+	}
+
+	public void setGraph(ManagedGraph graph)
+	{
+		if (graph != mGraph)
+		{
+			ManagedGraph oldGraph = mGraph;
+			mGraph = graph;
+			fireGraphSet(oldGraph, graph);
+		}
+	}
+
+	public Set<? extends ManagedNode> getAdjacentManagedNodes()
+	{
+		validate();
+		Set<ManagedNode> nodes = new HashSet<ManagedNode>();
+		for (ManagedArc arc : mArcs)
+			nodes.add(arc.getOtherManagedNode(this));
+		return nodes;
+	}
+
+	public void addArc(ManagedArc arc)
+	{
+		if (mArcs.add(arc))
+			fireArcAdded(arc);
+	}
+
+	public void removeArc(ManagedArc arc)
+	{
+		if (mArcs.remove(arc))
+			fireArcRemoved(arc);
+	}
+
+	protected boolean doIsValid()
+	{
+		return true;
+	}
+
+	private void fireGraphSet(ManagedGraph oldGraph, ManagedGraph newGraph)
+	{
+		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
+		for (NodeListener listener : listeners)
+			listener.graphSet(this, oldGraph, newGraph);
+	}
+
+	private void fireArcAdded(Arc arc)
+	{
+		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
+		for (NodeListener listener : listeners)
+			listener.arcAdded(this, arc);
+	}
+
+	private void fireArcRemoved(Arc arc)
+	{
+		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
+		for (NodeListener listener : listeners)
+			listener.arcRemoved(this, arc);
+	}
+
+	private void fireRemoved()
+	{
+		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
+		for (NodeListener listener : listeners)
+			listener.removed(this);
+	}
 }

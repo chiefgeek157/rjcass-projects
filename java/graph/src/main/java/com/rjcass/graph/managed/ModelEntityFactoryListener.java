@@ -1,9 +1,7 @@
-package com.rjcass.graph.basic.manage;
+package com.rjcass.graph.managed;
 
 public interface ModelEntityFactoryListener
 {
-	void modelCreated(ManagedModel model);
-
 	void graphCreated(ManagedGraph graph);
 
 	void nodeCreated(ManagedNode node);

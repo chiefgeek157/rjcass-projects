@@ -1,6 +1,8 @@
-package com.rjcass.graph.basic;
+package com.rjcass.graph.filter;
 
 import com.rjcass.graph.AdjacencyFilter;
+import com.rjcass.graph.Arc;
+import com.rjcass.graph.Node;
 
 public class TypeAdjacencyFilter implements AdjacencyFilter
 {
@@ -18,7 +20,7 @@ public class TypeAdjacencyFilter implements AdjacencyFilter
         mNodeClass = nodeClass;
     }
 
-    @Override public boolean passes(Arc arc, Node node)
+	public boolean passes(Arc arc, Node node)
     {
         boolean result = false;
         if((mArcClass == null || mArcClass.isInstance(arc))

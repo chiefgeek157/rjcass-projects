@@ -1,6 +1,5 @@
-package com.rjcass.graph.basic;
+package com.rjcass.graph;
 
-import com.rjcass.graph.ModelEntity;
 
 public abstract class AbstractModelEntity implements ModelEntity
 {

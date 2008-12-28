@@ -1,4 +1,4 @@
-package com.rjcass.graph.basic;
+package com.rjcass.graph;
 
 public class GraphException extends RuntimeException
 {
