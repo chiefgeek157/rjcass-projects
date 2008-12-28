@@ -1,7 +1,6 @@
 package com.rjcass.graph.basic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -111,7 +110,7 @@ public class BasicModelTest implements ModelListener
 		Set<? extends Node> node1GraphNodes = node1Graph.getNodes();
 		assertEquals(1, node1GraphNodes.size());
 		assertEquals(node1, node1GraphNodes.iterator().next());
-		
+
 		Set<? extends Node> node2GraphNodes = node2Graph.getNodes();
 		assertEquals(1, node2GraphNodes.size());
 		assertEquals(node2, node2GraphNodes.iterator().next());
