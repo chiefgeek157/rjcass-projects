@@ -3,24 +3,26 @@ package com.rjcass.graph.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.rjcass.graph.listener.EventTraceListener;
+import com.rjcass.graph.listener.ListenerEvent;
 import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedEntityFactory;
-import com.rjcass.graph.managed.ManagedEntityFactoryListener;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicManagedEntityFactoryTest implements ManagedEntityFactoryListener
+public class BasicManagedEntityFactoryTest
 {
 	private ManagedEntityFactory mFactory;
-	private boolean mEventGraphCreated;
-	private boolean mEventNodeCreated;
-	private boolean mEventArcCreated;
+	private EventTraceListener mListener;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
@@ -33,8 +35,9 @@ public class BasicManagedEntityFactoryTest implements ManagedEntityFactoryListen
 	@Before
 	public void setUp() throws Exception
 	{
+		mListener = new EventTraceListener();
 		mFactory = new BasicManagedEntityFactory();
-		mFactory.addListener(this);
+		mFactory.addListener(mListener);
 	}
 
 	@After
@@ -44,39 +47,36 @@ public class BasicManagedEntityFactoryTest implements ManagedEntityFactoryListen
 	@Test
 	public void testCreateGraph()
 	{
+		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+
 		ManagedGraph graph = mFactory.createGraph();
 		assertEquals(BasicGraph.class, graph.getClass());
-		assertTrue(mEventGraphCreated);
+
+		assertTrue(mListener.compareTo(events));
 	}
 
 	@Test
 	public void testCreateNode()
 	{
+		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+
 		ManagedNode node = mFactory.createNode();
 		assertEquals(BasicNode.class, node.getClass());
-		assertTrue(mEventNodeCreated);
+
+		assertTrue(mListener.compareTo(events));
 	}
 
 	@Test
 	public void testCreateArc()
 	{
+		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
+
 		ManagedArc arc = mFactory.createArc();
 		assertEquals(BasicArc.class, arc.getClass());
-		assertTrue(mEventArcCreated);
-	}
 
-	public void graphCreated(ManagedGraph graph)
-	{
-		mEventGraphCreated = true;
-	}
-
-	public void nodeCreated(ManagedNode node)
-	{
-		mEventNodeCreated = true;
-	}
-
-	public void arcCreated(ManagedArc arc)
-	{
-		mEventArcCreated = true;
+		assertTrue(mListener.compareTo(events));
 	}
 }

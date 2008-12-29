@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -15,17 +17,18 @@ import org.junit.Test;
 
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.Graph;
-import com.rjcass.graph.Model;
-import com.rjcass.graph.ModelFactory;
-import com.rjcass.graph.ModelListener;
 import com.rjcass.graph.Node;
+import com.rjcass.graph.listener.EventTraceListener;
+import com.rjcass.graph.listener.ListenerEvent;
 import com.rjcass.graph.managed.ManagedModel;
+import com.rjcass.graph.managed.ManagedModelFactory;
 
-public class BasicModelTest implements ModelListener
+public class BasicModelTest
 {
-	private static ModelFactory sModelFactory;
+	private static ManagedModelFactory sModelFactory;
 
 	private ManagedModel mModel;
+	private EventTraceListener mListener;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
@@ -40,16 +43,25 @@ public class BasicModelTest implements ModelListener
 	@Before
 	public void setUp() throws Exception
 	{
+		mListener = new EventTraceListener();
+		sModelFactory.addModelFactoryListener(mListener);
+		sModelFactory.getEntityFactory().addListener(mListener);
 		mModel = (ManagedModel)sModelFactory.createModel();
 	}
 
 	@After
 	public void tearDown() throws Exception
-	{}
+	{
+		sModelFactory.removeModelFactoryListener(mListener);
+		sModelFactory.getEntityFactory().removeListener(mListener);
+	}
 
 	@Test
 	public void testEmptyModel()
 	{
+		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
+		events.add(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
+
 		Set<? extends Graph> graphs = mModel.getGraphs();
 		assertEquals(0, graphs.size());
 
@@ -58,11 +70,22 @@ public class BasicModelTest implements ModelListener
 
 		Set<? extends Arc> arcs = mModel.getArcs();
 		assertEquals(0, arcs.size());
+
+		assertTrue(mListener.compareTo(events));
 	}
 
 	@Test
 	public void testAddOneNode()
 	{
+		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
+		events.add(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+		events.add(ListenerEvent.MODEL_GRAPH_ADDED);
+		events.add(ListenerEvent.GRAPH_MODEL_SET);
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+		events.add(ListenerEvent.GRAPH_NODE_ADDED);
+		events.add(ListenerEvent.NODE_GRAPH_SET);
+
 		Node node1 = mModel.addNode();
 
 		Graph node1Graph = node1.getGraph();
@@ -79,11 +102,28 @@ public class BasicModelTest implements ModelListener
 		Set<? extends Node> node1GraphNodes = node1Graph.getNodes();
 		assertEquals(1, node1GraphNodes.size());
 		assertEquals(node1, node1GraphNodes.iterator().next());
+
+		assertTrue(mListener.compareTo(events));
 	}
 
 	@Test
 	public void testAddTwoNodes()
 	{
+		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
+		events.add(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+		events.add(ListenerEvent.MODEL_GRAPH_ADDED);
+		events.add(ListenerEvent.GRAPH_MODEL_SET);
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+		events.add(ListenerEvent.GRAPH_NODE_ADDED);
+		events.add(ListenerEvent.NODE_GRAPH_SET);
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+		events.add(ListenerEvent.MODEL_GRAPH_ADDED);
+		events.add(ListenerEvent.GRAPH_MODEL_SET);
+		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+		events.add(ListenerEvent.GRAPH_NODE_ADDED);
+		events.add(ListenerEvent.NODE_GRAPH_SET);
+
 		Node node1 = mModel.addNode();
 		Node node2 = mModel.addNode();
 
@@ -114,6 +154,8 @@ public class BasicModelTest implements ModelListener
 		Set<? extends Node> node2GraphNodes = node2Graph.getNodes();
 		assertEquals(1, node2GraphNodes.size());
 		assertEquals(node2, node2GraphNodes.iterator().next());
+
+		assertTrue(mListener.compareTo(events));
 	}
 
 	@Test
@@ -129,55 +171,8 @@ public class BasicModelTest implements ModelListener
 	}
 
 	@Test
-	public void testGetArcs()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
 	public void testGetArcsArcFilter()
 	{
 		fail("Not yet implemented");
 	}
-
-	@Test
-	public void testAddArc()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testRemoveGraph()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Override
-	public void graphAdded(Model model, Graph graph)
-	{
-	// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void graphRemoved(Model model, Graph graph)
-	{
-	// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void graphSplit(Model model, Graph source, Graph target)
-	{
-	// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void graphsMerged(Model model, Graph source, Graph target)
-	{
-	// TODO Auto-generated method stub
-
-	}
-
 }

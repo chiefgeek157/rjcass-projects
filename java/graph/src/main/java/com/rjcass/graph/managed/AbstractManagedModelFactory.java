@@ -26,6 +26,11 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 		mEntityFactory = factory;
 	}
 
+	public ManagedEntityFactory getEntityFactory()
+	{
+		return mEntityFactory;
+	}
+
 	public final Model createModel()
 	{
 		ManagedModel model = doCreateModel();
@@ -37,11 +42,6 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 	protected AbstractManagedModelFactory()
 	{
 		mListeners = new HashSet<ModelFactoryListener>();
-	}
-
-	protected ManagedEntityFactory getEntityFactory()
-	{
-		return mEntityFactory;
 	}
 
 	protected abstract ManagedModel doCreateModel();
