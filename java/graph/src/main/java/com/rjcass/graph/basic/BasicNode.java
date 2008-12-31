@@ -41,7 +41,13 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	public Arc joinTo(Node node)
 	{
+		return joinTo(node, false);
+	}
+
+	public Arc joinTo(Node node, boolean directed)
+	{
 		validate();
+
 		if (!node.isValid())
 			throw new IllegalArgumentException("Invalid node");
 		if (getGraph().getModel() != node.getGraph().getModel())
@@ -51,15 +57,8 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		if (isAdjacentTo(node))
 			throw new IllegalArgumentException("Already connected to given Node");
 
-		ManagedArc arc = getManagedGraph().getManagedModel().addArc(this, (ManagedNode)node);
-
-		return arc;
-	}
-
-	public Arc joinTo(Node node, boolean directed)
-	{
-		Arc arc = joinTo(node);
-		arc.setDirection(this, Arc.Direction.OUTBOUND);
+		// Delegate Arc creation to the Model
+		ManagedArc arc = getManagedGraph().getManagedModel().addManagedArc(this, (ManagedNode)node, directed);
 
 		return arc;
 	}
@@ -67,24 +66,26 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 	public void disconnectFrom(Node node)
 	{
 		validate();
-		if (!node.isValid())
-			throw new IllegalArgumentException("Invalid node");
 
 		Arc arc = getConnectingArc(node);
 		if (arc == null)
 			throw new IllegalArgumentException("Not connected to node");
 
+		// Delegate removal to the Arc
 		arc.remove();
 	}
 
 	public void remove()
 	{
 		validate();
-		for (ManagedNode node : getAdjacentManagedNodes())
-			disconnectFrom(node);
 
-		mGraph.removeNode(this);
-		fireRemoved();
+		Set<ManagedArc> arcs = new HashSet<ManagedArc>(mArcs);
+		for (ManagedArc arc : arcs)
+			arc.remove();
+
+		mGraph.removeManagedNode(this);
+
+		removeNotifyOnly();
 	}
 
 	public Arc getConnectingArc(Node node)
@@ -107,8 +108,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	public Set<? extends Arc> getArcs()
 	{
-		validate();
-		return Collections.unmodifiableSet(mArcs);
+		return getManagedArcs();
 	}
 
 	public Set<? extends Arc> getInboundArcs()
@@ -128,7 +128,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		for (ManagedArc arc : mArcs)
 			if (filter.passes(arc))
 				arcs.add(arc);
-		return arcs;
+		return Collections.unmodifiableSet(arcs);
 	}
 
 	public Set<? extends Arc> getArcs(NodeFilter filter)
@@ -138,7 +138,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		for (ManagedArc arc : mArcs)
 			if (filter.passes(arc.getOtherNode(this)))
 				arcs.add(arc);
-		return arcs;
+		return Collections.unmodifiableSet(arcs);
 	}
 
 	public Set<? extends Arc> getArcs(AdjacencyFilter filter)
@@ -148,7 +148,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		for (ManagedArc arc : mArcs)
 			if (filter.passes(arc, arc.getOtherNode(this)))
 				arcs.add(arc);
-		return arcs;
+		return Collections.unmodifiableSet(arcs);
 	}
 
 	public boolean isAdjacentTo(Node node)
@@ -179,7 +179,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		for (ManagedArc arc : mArcs)
 			if (filter.passes(arc))
 				nodes.add(arc.getOtherManagedNode(this));
-		return nodes;
+		return Collections.unmodifiableSet(nodes);
 	}
 
 	public Set<? extends Node> getAdjacentNodes(NodeFilter filter)
@@ -192,7 +192,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 			if (filter.passes(otherNode))
 				nodes.add(otherNode);
 		}
-		return nodes;
+		return Collections.unmodifiableSet(nodes);
 	}
 
 	public Set<? extends Node> getAdjacentNodes(AdjacencyFilter filter)
@@ -205,7 +205,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 			if (filter.passes(arc, otherNode))
 				nodes.add(otherNode);
 		}
-		return nodes;
+		return Collections.unmodifiableSet(nodes);
 	}
 
 	public void addListener(NodeListener listener)
@@ -218,13 +218,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		mListeners.remove(listener);
 	}
 
-	public ManagedGraph getManagedGraph()
-	{
-		validate();
-		return mGraph;
-	}
-
-	public void setGraph(ManagedGraph graph)
+	public void setManagedGraph(ManagedGraph graph)
 	{
 		if (graph != mGraph)
 		{
@@ -234,25 +228,42 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		}
 	}
 
+	public void addManagedArc(ManagedArc arc)
+	{
+		mArcs.add(arc);
+		fireArcAdded(arc);
+	}
+
+	public void removeManagedArc(ManagedArc arc)
+	{
+		mArcs.remove(arc);
+		fireArcRemoved(arc);
+	}
+
+	public void removeNotifyOnly()
+	{
+		fireRemoved();
+	}
+
+	public ManagedGraph getManagedGraph()
+	{
+		validate();
+		return mGraph;
+	}
+
+	public Set<? extends ManagedArc> getManagedArcs()
+	{
+		validate();
+		return Collections.unmodifiableSet(new HashSet<ManagedArc>(mArcs));
+	}
+
 	public Set<? extends ManagedNode> getAdjacentManagedNodes()
 	{
 		validate();
 		Set<ManagedNode> nodes = new HashSet<ManagedNode>();
 		for (ManagedArc arc : mArcs)
 			nodes.add(arc.getOtherManagedNode(this));
-		return nodes;
-	}
-
-	public void addArc(ManagedArc arc)
-	{
-		if (mArcs.add(arc))
-			fireArcAdded(arc);
-	}
-
-	public void removeArc(ManagedArc arc)
-	{
-		if (mArcs.remove(arc))
-			fireArcRemoved(arc);
+		return Collections.unmodifiableSet(nodes);
 	}
 
 	protected boolean doIsValid()

@@ -7,8 +7,22 @@ public interface Arc extends ModelEntity
 		UNDIRECTED, INBOUND, OUTBOUND
 	};
 
-	boolean isConnectedTo(Node node);
+	void setNodes(Node startNode, Node endNode);
+
+	void setNodes(Node startNode, Node endNode, boolean undirected);
+
+	void setUndirected();
+
+	void setDirection(Node source, Direction direction);
+
+	void reverse();
+
+	void remove();
+
+	Graph getGraph();
 	
+	boolean isConnectedTo(Node node);
+
 	Node getStartNode();
 
 	Node getEndNode();
@@ -18,14 +32,6 @@ public interface Arc extends ModelEntity
 	boolean isDirected();
 
 	Direction getDirection(Node node);
-
-	void setUndirected();
-	
-	void setDirection(Node source, Direction direction);
-
-	void reverse();
-
-	void remove();
 
 	void addListener(ArcListener listener);
 

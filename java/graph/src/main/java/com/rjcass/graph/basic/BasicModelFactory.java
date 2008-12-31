@@ -10,7 +10,7 @@ public class BasicModelFactory extends AbstractManagedModelFactory
 		setEntityFactory(new BasicManagedEntityFactory());
 	}
 
-	protected ManagedModel doCreateModel()
+	protected ManagedModel doCreateManagedModel()
 	{
 		return new BasicModel();
 	}

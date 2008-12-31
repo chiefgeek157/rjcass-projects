@@ -59,20 +59,41 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	public Set<? extends Arc> getArcs()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return getManagedArcs();
 	}
 
 	public Set<? extends Arc> getArcs(ArcFilter filter)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		validate();
+		Set<ManagedArc> arcs = new HashSet<ManagedArc>();
+		for (ManagedArc arc : mArcs)
+		{
+			if (filter.passes(arc))
+				arcs.add(arc);
+		}
+		return Collections.unmodifiableSet(arcs);
 	}
 
 	public void remove()
 	{
 		validate();
-		mModel.removeGraph(this);
+
+		Set<? extends ManagedArc> arcs = mArcs;
+		for (ManagedArc arc : arcs)
+		{
+			doRemoveManagedArc(arc);
+			arc.removeNotifyOnly();
+		}
+
+		Set<? extends ManagedNode> nodes = mNodes;
+		for (ManagedNode node : nodes)
+		{
+			doRemoveManagedNode(node);
+			node.removeNotifyOnly();
+		}
+
+		mModel.managedGraphRemoved(this);
+
 		fireRemoved();
 	}
 
@@ -86,13 +107,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 		mListeners.remove(listener);
 	}
 
-	public ManagedModel getManagedModel()
-	{
-		validate();
-		return mModel;
-	}
-
-	public void setModel(ManagedModel model)
+	public void setManagedModel(ManagedModel model)
 	{
 		if (model == null && mModel != null || model != null && model != mModel)
 		{
@@ -102,41 +117,52 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 		}
 	}
 
-	@Override
-	public Set<? extends ManagedNode> getManagedNodes()
+	public void addManagedNode(ManagedNode node)
 	{
-		validate();
-		return Collections.unmodifiableSet(mNodes);
-	}
-
-	public void addNode(ManagedNode node)
-	{
+		node.setManagedGraph(this);
 		mNodes.add(node);
 		fireNodeAdded(node);
 
-		node.setGraph(this);
+		mModel.managedNodeAdded(node);
 	}
 
-	public void removeNode(ManagedNode node)
+	public void removeManagedNode(ManagedNode node)
 	{
-		node.setGraph(null);
-
-		mNodes.remove(node);
-		fireNodeRemoved(node);
-
+		doRemoveManagedNode(node);
 		if (mNodes.size() == 0)
-			mModel.removeGraph(this);
+			remove();
 	}
 
-	public void addArc(ManagedArc arc)
+	public void addManagedArc(ManagedArc arc)
 	{
+		arc.setManagedGraph(this);
 		mArcs.add(arc);
+		fireArcAdded(arc);
+
+		mModel.managedArcAdded(arc);
 	}
 
-	public void removeArc(ManagedArc arc)
+	public void removeManagedArc(ManagedArc arc)
 	{
-		if (!mArcs.remove(arc))
-			throw new IllegalStateException("Attempt to remove Arc that is not part of this Graph");
+		doRemoveManagedArc(arc);
+	}
+
+	public ManagedModel getManagedModel()
+	{
+		validate();
+		return mModel;
+	}
+
+	public Set<? extends ManagedNode> getManagedNodes()
+	{
+		validate();
+		return Collections.unmodifiableSet(new HashSet<ManagedNode>(mNodes));
+	}
+
+	public Set<? extends ManagedArc> getManagedArcs()
+	{
+		validate();
+		return Collections.unmodifiableSet(new HashSet<ManagedArc>(mArcs));
 	}
 
 	private void fireModelSet(ManagedModel oldModel, ManagedModel newModel)
@@ -160,10 +186,42 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 			listener.nodeRemoved(this, node);
 	}
 
+	private void fireArcAdded(ManagedArc arc)
+	{
+		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
+		for (GraphListener listener : listeners)
+			listener.arcAdded(this, arc);
+	}
+
+	private void fireArcRemoved(ManagedArc arc)
+	{
+		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
+		for (GraphListener listener : listeners)
+			listener.arcRemoved(this, arc);
+	}
+
 	private void fireRemoved()
 	{
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.removed(this);
+	}
+
+	private void doRemoveManagedNode(ManagedNode node)
+	{
+		node.setManagedGraph(null);
+		mNodes.remove(node);
+		fireNodeRemoved(node);
+
+		mModel.managedNodeRemoved(node);
+	}
+
+	private void doRemoveManagedArc(ManagedArc arc)
+	{
+		arc.setManagedGraph(null);
+		mArcs.remove(arc);
+		fireArcRemoved(arc);
+
+		mModel.managedArcRemoved(arc);
 	}
 }

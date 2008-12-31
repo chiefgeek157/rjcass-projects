@@ -5,13 +5,15 @@ import java.util.Set;
 
 import com.rjcass.graph.AbstractModelEntity;
 import com.rjcass.graph.ArcListener;
+import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
 import com.rjcass.graph.managed.ManagedArc;
-import com.rjcass.graph.managed.ManagedModel;
+import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
 public class BasicArc extends AbstractModelEntity implements ManagedArc
 {
+	private ManagedGraph mGraph;
 	private ManagedNode mStartNode;
 	private ManagedNode mEndNode;
 	private boolean mDirected;
@@ -27,49 +29,40 @@ public class BasicArc extends AbstractModelEntity implements ManagedArc
 		return (mStartNode != null && mEndNode != null && mStartNode.isValid() && mEndNode.isValid() && doIsValid());
 	}
 
-	public boolean isConnectedTo(Node node)
+	public void setNodes(Node startNode, Node endNode)
 	{
-		validate();
-		return (node == mStartNode || node == mEndNode);
+		setNodes(startNode, endNode, true);
 	}
 
-	public Node getStartNode()
+	public void setNodes(Node startNode, Node endNode, boolean undirected)
 	{
-		validate();
-		return mStartNode;
-	}
-
-	public Node getEndNode()
-	{
-		validate();
-		return mEndNode;
-	}
-
-	public Node getOtherNode(Node node)
-	{
-		return getOtherManagedNode((ManagedNode)node);
-	}
-
-	public boolean isDirected()
-	{
-		validate();
-		return mDirected;
-	}
-
-	public Direction getDirection(Node node)
-	{
-		validate();
-		Direction direction = Direction.UNDIRECTED;
-		if (mDirected)
+		if (startNode != mStartNode || endNode != mEndNode)
 		{
-			if (node == mStartNode)
-				direction = Direction.OUTBOUND;
-			else if (node == mEndNode)
-				direction = Direction.INBOUND;
-			else
-				throw new IllegalArgumentException("Node is not part of this Arc");
+			ManagedNode oldStartNode = mStartNode;
+			ManagedNode oldEndNode = mEndNode;
+			mStartNode = (ManagedNode)startNode;
+			mEndNode = (ManagedNode)endNode;
+			fireNodesSet(oldStartNode, oldEndNode, mStartNode, mEndNode);
+
+			if (oldStartNode != mStartNode)
+			{
+				if (oldStartNode != null)
+					oldStartNode.removeManagedArc(this);
+				if (mStartNode != null)
+					mStartNode.addManagedArc(this);
+			}
+			if (oldEndNode != mEndNode)
+			{
+				if (oldEndNode != null)
+					oldEndNode.removeManagedArc(this);
+				if (mEndNode != null)
+					mEndNode.addManagedArc(this);
+			}
 		}
-		return direction;
+		if (undirected)
+			setUndirected();
+		else
+			setDirection(mStartNode, Direction.OUTBOUND);
 	}
 
 	public void setUndirected()
@@ -123,14 +116,60 @@ public class BasicArc extends AbstractModelEntity implements ManagedArc
 	{
 		validate();
 
-		ManagedModel model = mStartNode.getManagedGraph().getManagedModel();
+		// Delegate to Model
+		mGraph.getManagedModel().removeManagedArc(this);
 
-		mStartNode.removeArc(this);
-		mEndNode.removeArc(this);
-		model.removeArc(this);
-		mStartNode = null;
-		mEndNode = null;
-		fireRemoved();
+		removeNotifyOnly();
+	}
+
+	public Graph getGraph()
+	{
+		return mGraph;
+	}
+
+	public boolean isConnectedTo(Node node)
+	{
+		validate();
+		return (node == mStartNode || node == mEndNode);
+	}
+
+	public Node getStartNode()
+	{
+		validate();
+		return mStartNode;
+	}
+
+	public Node getEndNode()
+	{
+		validate();
+		return mEndNode;
+	}
+
+	public Node getOtherNode(Node node)
+	{
+		return getOtherManagedNode((ManagedNode)node);
+	}
+
+	public boolean isDirected()
+	{
+		validate();
+		return mDirected;
+	}
+
+	public Direction getDirection(Node node)
+	{
+		validate();
+		Direction direction = Direction.UNDIRECTED;
+		if (mDirected)
+		{
+			if (node == mStartNode)
+				direction = Direction.OUTBOUND;
+			else if (node == mEndNode)
+				direction = Direction.INBOUND;
+			else
+				throw new IllegalArgumentException("Node is not part of this Arc");
+		}
+		return direction;
 	}
 
 	public void addListener(ArcListener listener)
@@ -141,6 +180,23 @@ public class BasicArc extends AbstractModelEntity implements ManagedArc
 	public void removeListener(ArcListener listener)
 	{
 		mListeners.remove(listener);
+	}
+
+	public void setManagedGraph(ManagedGraph graph)
+	{
+		ManagedGraph oldGraph = mGraph;
+		mGraph = graph;
+		fireGraphSet(oldGraph, mGraph);
+	}
+
+	public void removeNotifyOnly()
+	{
+		if (mStartNode != null)
+			mStartNode.removeManagedArc(this);
+		if (mEndNode != null)
+			mEndNode.removeManagedArc(this);
+
+		fireRemoved();
 	}
 
 	public ManagedNode getStartManagedNode()
@@ -166,31 +222,23 @@ public class BasicArc extends AbstractModelEntity implements ManagedArc
 		return otherNode;
 	}
 
-	public void setStartNode(ManagedNode node)
-	{
-		if (node != mStartNode)
-		{
-			node.addArc(this);
-			ManagedNode oldNode = mStartNode;
-			mStartNode = node;
-			fireStartNodeSet(oldNode, node);
-		}
-	}
-
-	public void setEndNode(ManagedNode node)
-	{
-		if (node != mEndNode)
-		{
-			node.addArc(this);
-			ManagedNode oldNode = mEndNode;
-			mEndNode = node;
-			fireEndNodeSet(oldNode, node);
-		}
-	}
-
 	protected boolean doIsValid()
 	{
 		return true;
+	}
+
+	private void fireGraphSet(ManagedGraph oldGraph, ManagedGraph newGraph)
+	{
+		Set<ArcListener> listeners = new HashSet<ArcListener>(mListeners);
+		for (ArcListener listener : listeners)
+			listener.graphSet(this, oldGraph, newGraph);
+	}
+
+	private void fireNodesSet(ManagedNode oldStartNode, ManagedNode oldEndNode, ManagedNode newStartNode, ManagedNode newEndNode)
+	{
+		Set<ArcListener> listeners = new HashSet<ArcListener>(mListeners);
+		for (ArcListener listener : listeners)
+			listener.nodesSet(this, oldStartNode, oldEndNode, newStartNode, newEndNode);
 	}
 
 	private void fireDirectedSet(boolean directed)
@@ -205,20 +253,6 @@ public class BasicArc extends AbstractModelEntity implements ManagedArc
 		Set<ArcListener> listeners = new HashSet<ArcListener>(mListeners);
 		for (ArcListener listener : listeners)
 			listener.reversed(this);
-	}
-
-	private void fireStartNodeSet(ManagedNode oldNode, ManagedNode newNode)
-	{
-		Set<ArcListener> listeners = new HashSet<ArcListener>(mListeners);
-		for (ArcListener listener : listeners)
-			listener.startNodeSet(this, oldNode, newNode);
-	}
-
-	private void fireEndNodeSet(ManagedNode oldNode, ManagedNode newNode)
-	{
-		Set<ArcListener> listeners = new HashSet<ArcListener>(mListeners);
-		for (ArcListener listener : listeners)
-			listener.endNodeSet(this, oldNode, newNode);
 	}
 
 	private void fireRemoved()

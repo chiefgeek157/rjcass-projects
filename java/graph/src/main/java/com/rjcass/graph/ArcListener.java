@@ -2,9 +2,9 @@ package com.rjcass.graph;
 
 public interface ArcListener
 {
-	void startNodeSet(Arc arc, Node oldNode, Node newNode);
+	void graphSet(Arc arc, Graph oldGraph, Graph newGraph);
 
-	void endNodeSet(Arc arc, Node oldNode, Node newNode);
+	void nodesSet(Arc arc, Node oldStartNode, Node oldEndNode, Node newStartNode, Node newEndNode);
 
 	void directedSet(Arc arc, boolean directed);
 

@@ -13,7 +13,7 @@ public class GenericModelFactory extends AbstractManagedModelFactory
 		mModelClassName = className;
 	}
 
-	protected ManagedModel doCreateModel()
+	protected ManagedModel doCreateManagedModel()
 	{
 		ManagedModel model = null;
 		try

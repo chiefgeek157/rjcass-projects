@@ -1,10 +1,6 @@
 package com.rjcass.graph.basic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -47,36 +43,36 @@ public class BasicManagedEntityFactoryTest
 	@Test
 	public void testCreateGraph()
 	{
-		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
-		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
 
 		ManagedGraph graph = mFactory.createGraph();
 		assertEquals(BasicGraph.class, graph.getClass());
 
-		assertTrue(mListener.compareTo(events));
+		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testCreateNode()
 	{
-		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
-		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
 
 		ManagedNode node = mFactory.createNode();
 		assertEquals(BasicNode.class, node.getClass());
 
-		assertTrue(mListener.compareTo(events));
+		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testCreateArc()
 	{
-		List<ListenerEvent> events = new ArrayList<ListenerEvent>();
-		events.add(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
 
 		ManagedArc arc = mFactory.createArc();
 		assertEquals(BasicArc.class, arc.getClass());
 
-		assertTrue(mListener.compareTo(events));
+		assertEquals(events, mListener);
 	}
 }

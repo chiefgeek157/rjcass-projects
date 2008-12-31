@@ -8,5 +8,9 @@ public interface GraphListener
 
 	void nodeRemoved(Graph graph, Node node);
 
+	void arcAdded(Graph graph, Arc arc);
+
+	void arcRemoved(Graph graph, Arc arc);
+
 	void removed(Graph graph);
 }

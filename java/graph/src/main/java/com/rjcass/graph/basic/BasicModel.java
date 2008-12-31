@@ -14,11 +14,12 @@ import com.rjcass.graph.GraphFilter;
 import com.rjcass.graph.ModelListener;
 import com.rjcass.graph.Node;
 import com.rjcass.graph.NodeFilter;
+import com.rjcass.graph.Arc.Direction;
 import com.rjcass.graph.managed.ManagedArc;
+import com.rjcass.graph.managed.ManagedEntityFactory;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedNode;
-import com.rjcass.graph.managed.ManagedEntityFactory;
 
 public class BasicModel extends AbstractModelEntity implements ManagedModel
 {
@@ -36,7 +37,7 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 		mListeners = new HashSet<ModelListener>();
 	}
 
-	public void setEntityFactory(ManagedEntityFactory factory)
+	public void setManagedEntityFactory(ManagedEntityFactory factory)
 	{
 		mEntityFactory = factory;
 	}
@@ -50,17 +51,10 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 	{
 		validate();
 
-		ManagedGraph graph = mEntityFactory.createGraph();
-
-		mGraphs.add(graph);
-		fireGraphAdded(graph);
-
-		graph.setModel(this);
-
+		ManagedGraph graph = createManagedGraph();
 		ManagedNode node = mEntityFactory.createNode();
 
-		mNodes.add(node);
-		graph.addNode(node);
+		graph.addManagedNode(node);
 
 		return node;
 	}
@@ -68,7 +62,7 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 	public Set<? extends Graph> getGraphs()
 	{
 		validate();
-		return Collections.unmodifiableSet(mGraphs);
+		return Collections.unmodifiableSet(new HashSet<ManagedGraph>(mGraphs));
 	}
 
 	public Set<? extends Graph> getGraphs(GraphFilter filter)
@@ -86,7 +80,7 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 	public Set<? extends Node> getNodes()
 	{
 		validate();
-		return Collections.unmodifiableSet(mNodes);
+		return Collections.unmodifiableSet(new HashSet<ManagedNode>(mNodes));
 	}
 
 	public Set<? extends Node> getNodes(NodeFilter filter)
@@ -104,7 +98,7 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 	public Set<? extends Arc> getArcs()
 	{
 		validate();
-		return Collections.unmodifiableSet(mArcs);
+		return Collections.unmodifiableSet(new HashSet<ManagedArc>(mArcs));
 	}
 
 	public Set<? extends Arc> getArcs(ArcFilter filter)
@@ -129,107 +123,132 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 		mListeners.remove(listener);
 	}
 
-	public ManagedArc addArc(ManagedNode node1, ManagedNode node2)
+	public ManagedArc addManagedArc(ManagedNode node1, ManagedNode node2, boolean directed)
 	{
 		validate();
 
 		ManagedArc arc = mEntityFactory.createArc();
-		mArcs.add(arc);
-
-		arc.setStartNode(node1);
-		arc.setEndNode(node2);
+		arc.setNodes(node1, node2);
+		if (directed)
+			arc.setDirection(node1, Direction.OUTBOUND);
 
 		// Combine graphs, if needed
-		ManagedGraph graph1 = node1.getManagedGraph();
-		ManagedGraph graph2 = node2.getManagedGraph();
-		if (graph1 != graph2)
+		ManagedGraph sourceGraph = node1.getManagedGraph();
+		ManagedGraph targetGraph = node2.getManagedGraph();
+		if (sourceGraph != targetGraph)
 		{
-			ManagedGraph source, target;
-			if (graph2.getNodes().size() > graph1.getNodes().size())
+			if (sourceGraph.getNodes().size() > targetGraph.getNodes().size())
 			{
-				target = graph2;
-				source = graph1;
+				ManagedGraph temp = targetGraph;
+				targetGraph = sourceGraph;
+				sourceGraph = temp;
 			}
-			else
+
+			for (ManagedArc arcToMove : sourceGraph.getManagedArcs())
 			{
-				target = graph1;
-				source = graph2;
+				sourceGraph.removeManagedArc(arcToMove);
+				targetGraph.addManagedArc(arcToMove);
 			}
-			for (ManagedNode node : source.getManagedNodes())
+
+			for (ManagedNode nodeToMove : sourceGraph.getManagedNodes())
 			{
-				source.removeNode(node);
-				target.addNode(node);
+				sourceGraph.removeManagedNode(nodeToMove);
+				targetGraph.addManagedNode(nodeToMove);
 			}
+
+			fireGraphsMerged(sourceGraph, targetGraph);
 		}
+
+		targetGraph.addManagedArc(arc);
+
 		return arc;
 	}
 
-	public void removeGraph(ManagedGraph graph)
-	{
-		if (graph.getModel() != this)
-			throw new IllegalStateException("Attempt to remove Graph that is not part of this Model");
-
-		graph.setModel(null);
-
-		mGraphs.remove(graph);
-		fireGraphRemoved(graph);
-	}
-
-	public void removeNode(ManagedNode node)
-	{
-		if (!mNodes.remove(node))
-			throw new IllegalStateException("Attempt to remove Node that is not part of this Model");
-	}
-
-	public boolean removeArc(ManagedArc arc)
+	public void removeManagedArc(ManagedArc arc)
 	{
 		if (!mArcs.contains(arc))
 			throw new IllegalStateException("Attempt to remove Arc that is not part of this Model");
-		
-		Set<ManagedNode> moveSet = new HashSet<ManagedNode>();
-		Queue<ManagedNode> queue = new LinkedList<ManagedNode>();
+
+		Set<ManagedNode> nodesToMove = new HashSet<ManagedNode>();
+		Queue<ManagedNode> nodeSearchQueue = new LinkedList<ManagedNode>();
 
 		ManagedNode node1 = arc.getStartManagedNode();
 		ManagedNode node2 = arc.getEndManagedNode();
-		
-		queue.add(node2);
+
+		nodeSearchQueue.add(node2);
 		boolean split = true;
-		while (queue.size() > 0 && split)
+		while (nodeSearchQueue.size() > 0 && split)
 		{
-			ManagedNode currentNode = queue.poll();
-			moveSet.add(currentNode);
-			for (ManagedNode neighbor : currentNode.getAdjacentManagedNodes())
+			ManagedNode currentNode = nodeSearchQueue.poll();
+			nodesToMove.add(currentNode);
+			for (ManagedArc arcToNeighbor : currentNode.getManagedArcs())
 			{
-				if (neighbor == node1)
+				if (arcToNeighbor != arc)
 				{
-					split = false;
-					break;
-				}
-				if (!moveSet.contains(neighbor) && !queue.contains(neighbor))
-				{
-					queue.add(neighbor);
+					ManagedNode neighbor = arcToNeighbor.getOtherManagedNode(currentNode);
+					if (neighbor == node1)
+					{
+						split = false;
+						break;
+					}
+					if (!nodesToMove.contains(neighbor) && !nodeSearchQueue.contains(neighbor))
+					{
+						nodeSearchQueue.add(neighbor);
+					}
 				}
 			}
 		}
 
+		// Split Graphs if needed
 		if (split)
 		{
-			ManagedGraph source = node1.getManagedGraph();
-			ManagedGraph target = mEntityFactory.createGraph();
+			ManagedGraph sourceGraph = node1.getManagedGraph();
+			ManagedGraph targetGraph = createManagedGraph();
 
-			mGraphs.add(target);
-			fireGraphAdded(target);
-			
-			target.setModel(this);
-
-			for (ManagedNode node : moveSet)
+			Set<ManagedArc> arcsToMove = new HashSet<ManagedArc>();
+			for (ManagedNode nodeToMove : nodesToMove)
 			{
-				source.removeNode(node);
-				target.addNode(node);
+				arcsToMove.addAll(nodeToMove.getManagedArcs());
+				sourceGraph.removeManagedNode(nodeToMove);
+				targetGraph.addManagedNode(nodeToMove);
 			}
-		}
 
-		return split;
+			for (ManagedArc arcToMove : arcsToMove)
+			{
+				sourceGraph.removeManagedArc(arcToMove);
+				if (arcToMove != arc)
+					targetGraph.addManagedArc(arcToMove);
+			}
+
+			fireGraphsSplit(sourceGraph, targetGraph);
+		}
+	}
+
+	public void managedNodeAdded(ManagedNode node)
+	{
+		mNodes.add(node);
+	}
+
+	public void managedNodeRemoved(ManagedNode node)
+	{
+		mNodes.remove(node);
+	}
+
+	public void managedArcAdded(ManagedArc arc)
+	{
+		mArcs.add(arc);
+	}
+
+	public void managedArcRemoved(ManagedArc arc)
+	{
+		mArcs.remove(arc);
+	}
+
+	public void managedGraphRemoved(ManagedGraph graph)
+	{
+		graph.setManagedModel(null);
+		mGraphs.remove(graph);
+		fireGraphRemoved(graph);
 	}
 
 	private void fireGraphAdded(ManagedGraph graph)
@@ -244,5 +263,31 @@ public class BasicModel extends AbstractModelEntity implements ManagedModel
 		Set<ModelListener> listeners = new HashSet<ModelListener>(mListeners);
 		for (ModelListener listener : listeners)
 			listener.graphRemoved(this, graph);
+	}
+
+	private void fireGraphsMerged(ManagedGraph source, ManagedGraph target)
+	{
+		Set<ModelListener> listeners = new HashSet<ModelListener>(mListeners);
+		for (ModelListener listener : listeners)
+			listener.graphsMerged(this, source, target);
+	}
+
+	private void fireGraphsSplit(ManagedGraph source, ManagedGraph target)
+	{
+		Set<ModelListener> listeners = new HashSet<ModelListener>(mListeners);
+		for (ModelListener listener : listeners)
+			listener.graphSplit(this, source, target);
+	}
+
+	private ManagedGraph createManagedGraph()
+	{
+		ManagedGraph graph = mEntityFactory.createGraph();
+
+		graph.setManagedModel(this);
+
+		mGraphs.add(graph);
+		fireGraphAdded(graph);
+
+		return graph;
 	}
 }

@@ -6,17 +6,19 @@ import com.rjcass.graph.Graph;
 
 public interface ManagedGraph extends Graph
 {
+	void setManagedModel(ManagedModel model);
+
+	void addManagedNode(ManagedNode node);
+
+	void removeManagedNode(ManagedNode node);
+
+	void addManagedArc(ManagedArc arc);
+
+	void removeManagedArc(ManagedArc arc);
+
 	ManagedModel getManagedModel();
-	
-	void setModel(ManagedModel model);
 
 	Set<? extends ManagedNode> getManagedNodes();
-	
-	void addNode(ManagedNode node);
 
-	void removeNode(ManagedNode node);
-
-	void addArc(ManagedArc arc);
-
-	void removeArc(ManagedArc arc);
+	Set<? extends ManagedArc> getManagedArcs();
 }

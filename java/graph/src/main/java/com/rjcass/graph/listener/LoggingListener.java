@@ -84,6 +84,16 @@ public class LoggingListener implements ModelFactoryListener, ManagedEntityFacto
 		sLog.info("Graph.nodeRemoved(graph:" + graph + ",node:" + node + ")");
 	}
 
+	public void arcAdded(Graph graph, Arc arc)
+	{
+		sLog.info("Graph.arcAdded(graph:" + graph + ",arc:" + arc + ")");
+	}
+
+	public void arcRemoved(Graph graph, Arc arc)
+	{
+		sLog.info("Graph.arcRemoved(graph:" + graph + ",arc:" + arc + ")");
+	}
+
 	public void removed(Graph graph)
 	{
 		sLog.info("Graph.removed(graph:" + graph + ")");
@@ -109,14 +119,15 @@ public class LoggingListener implements ModelFactoryListener, ManagedEntityFacto
 		sLog.info("Node.removed(node:" + node + ")");
 	}
 
-	public void startNodeSet(Arc arc, Node oldNode, Node newNode)
+	public void graphSet(Arc arc, Graph oldGraph, Graph newGraph)
 	{
-		sLog.info("Arc.startNodeSet(arc:" + arc + ",oldNode:" + oldNode + ",newNode:" + newNode + ")");
+		sLog.info("Arc.graphSet(arc:" + arc + ",oldGraph:" + oldGraph + ",newGraph:" + newGraph + ")");
 	}
 
-	public void endNodeSet(Arc arc, Node oldNode, Node newNode)
+	public void nodesSet(Arc arc, Node oldStartNode, Node oldEndNode, Node newStartNode, Node newEndNode)
 	{
-		sLog.info("Arc.endNodeSet(arc:" + arc + ",oldNode:" + oldNode + ",newNode:" + newNode + ")");
+		sLog.info("Arc.nodesSet(arc:" + arc + ",oldStartNode:" + oldStartNode + ",oldEndNode:" + oldEndNode + ",newStartNode:"
+				+ newStartNode + ",newEndNode:" + newEndNode + ")");
 	}
 
 	public void directedSet(Arc arc, boolean directed)
