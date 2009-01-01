@@ -4,6 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,9 +26,12 @@ import com.rjcass.graph.managed.ManagedModelFactory;
 
 public class BasicNodeTest
 {
+	private static Log sLog = LogFactory.getLog(BasicNodeTest.class);
+
 	private ManagedModelFactory mFactory;
 	private ManagedModel mModel;
 	private EventTraceListener mListener;
+	private ConsoleAppender mAppender;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
@@ -34,19 +44,26 @@ public class BasicNodeTest
 	@Before
 	public void setUp() throws Exception
 	{
+		PatternLayout layout = new PatternLayout("%r: %m\n");
+		mAppender = new ConsoleAppender(layout, ConsoleAppender.SYSTEM_OUT);
+
+		Logger.getRootLogger().addAppender(mAppender);
+
 		mListener = new EventTraceListener();
 		mListener.pause();
 
-		mFactory = new BasicModelFactory();
+		mFactory = new BasicManagedModelFactory();
 		mFactory.addModelFactoryListener(mListener);
 		mFactory.getEntityFactory().addListener(mListener);
-		mModel = mFactory.createManagedModel();
+		mModel = mFactory.createManagedModel("test");
 		mModel.addListener(mListener);
 	}
 
 	@After
 	public void tearDown() throws Exception
-	{}
+	{
+		Logger.getRootLogger().removeAppender(mAppender);
+	}
 
 	@Test
 	public void testJoinTo()
@@ -67,8 +84,8 @@ public class BasicNodeTest
 		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
 		events.addEvent(ListenerEvent.GRAPH_ARC_ADDED);
 
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
 		assertEquals(2, mModel.getGraphs().size());
 
 		Graph graph1 = node1.getGraph();
@@ -80,7 +97,7 @@ public class BasicNodeTest
 		assertEquals(1, graph2.getNodes().size());
 
 		mListener.resume();
-		node1.joinTo(node2);
+		node1.joinTo("arc1", node2);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -111,9 +128,9 @@ public class BasicNodeTest
 		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
 		events.addEvent(ListenerEvent.GRAPH_ARC_ADDED);
 
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
-		Node node3 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		Node node3 = mModel.addNode("node3");
 		assertEquals(3, mModel.getGraphs().size());
 
 		Graph graph1 = node1.getGraph();
@@ -128,7 +145,7 @@ public class BasicNodeTest
 		assertTrue(graph3.isValid());
 		assertEquals(1, graph3.getNodes().size());
 
-		node1.joinTo(node2);
+		node1.joinTo("arc1", node2);
 
 		assertEquals(2, mModel.getGraphs().size());
 
@@ -141,7 +158,7 @@ public class BasicNodeTest
 		assertEquals(1, graph3.getNodes().size());
 
 		mListener.resume();
-		node2.joinTo(node3);
+		node2.joinTo("arc2", node3);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -164,9 +181,9 @@ public class BasicNodeTest
 		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
 		events.addEvent(ListenerEvent.GRAPH_ARC_ADDED);
 
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
-		Node node3 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		Node node3 = mModel.addNode("node3");
 		assertEquals(3, mModel.getGraphs().size());
 
 		Graph graph1 = node1.getGraph();
@@ -181,7 +198,7 @@ public class BasicNodeTest
 		assertTrue(graph3.isValid());
 		assertEquals(1, graph3.getNodes().size());
 
-		node1.joinTo(node2);
+		node1.joinTo("arc1", node2);
 
 		assertEquals(2, mModel.getGraphs().size());
 
@@ -193,7 +210,7 @@ public class BasicNodeTest
 		assertTrue(graph3.isValid());
 		assertEquals(1, graph3.getNodes().size());
 
-		node2.joinTo(node3);
+		node2.joinTo("arc2", node3);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -203,7 +220,7 @@ public class BasicNodeTest
 		assertFalse(graph3.isValid());
 
 		mListener.resume();
-		node3.joinTo(node1);
+		node3.joinTo("arc3", node1);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -216,35 +233,35 @@ public class BasicNodeTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailToSelf()
 	{
-		Node node1 = mModel.addNode();
-		node1.joinTo(node1);
+		Node node1 = mModel.addNode("node1");
+		node1.joinTo("arc1", node1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailToSameNode()
 	{
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
-		node1.joinTo(node2);
-		node1.joinTo(node2);
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		node1.joinTo("arc1", node2);
+		node1.joinTo("arc2", node2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailInvalidNode()
 	{
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
 		node2.remove();
-		node1.joinTo(node2);
+		node1.joinTo("arc1", node2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailWrongModel()
 	{
-		Node node1 = mModel.addNode();
-		ManagedModel model2 = mFactory.createManagedModel();
-		Node node2 = model2.addNode();
-		node1.joinTo(node2);
+		Node node1 = mModel.addNode("node1");
+		ManagedModel model2 = mFactory.createManagedModel("test2");
+		Node node2 = model2.addNode("node2");
+		node1.joinTo("arc1", node2);
 	}
 
 	@Test
@@ -265,9 +282,9 @@ public class BasicNodeTest
 		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
 		events.addEvent(ListenerEvent.ARC_REMOVED);
 
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
-		node1.joinTo(node2);
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		node1.joinTo("arc1", node2);
 
 		mListener.resume();
 		node1.disconnectFrom(node2);
@@ -280,8 +297,8 @@ public class BasicNodeTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testDisconnectFromFailNotConnected()
 	{
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
 		node1.disconnectFrom(node2);
 	}
 
@@ -296,7 +313,7 @@ public class BasicNodeTest
 		events.addEvent(ListenerEvent.GRAPH_REMOVED);
 		events.addEvent(ListenerEvent.NODE_REMOVED);
 
-		Node node1 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
 
 		mListener.resume();
 		node1.remove();
@@ -330,9 +347,9 @@ public class BasicNodeTest
 		events.addEvent(ListenerEvent.GRAPH_REMOVED);
 		events.addEvent(ListenerEvent.NODE_REMOVED);
 
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
-		node1.joinTo(node2);
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		node1.joinTo("arc1", node2);
 
 		mListener.resume();
 		node1.remove();
@@ -366,78 +383,92 @@ public class BasicNodeTest
 
 		// Network
 		//
-		//         +-------+-----------+
-		// 1---2   3   4---5---6   7   8---9
-		//     +-----------+-------+
+		// ....+===========+=======+
+		// 1===2...3...4===5===6...7...8===9
+		// ........+=======+===========+
 		//
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
-		Node node3 = mModel.addNode();
-		Node node4 = mModel.addNode();
-		Node node5 = mModel.addNode();
-		Node node6 = mModel.addNode();
-		Node node7 = mModel.addNode();
-		Node node8 = mModel.addNode();
-		Node node9 = mModel.addNode();
-		node2.joinTo(node1);
-		node5.joinTo(node2);
-		node5.joinTo(node3);
-		node5.joinTo(node4);
-		node5.joinTo(node6);
-		node5.joinTo(node7);
-		node5.joinTo(node8);
-		node8.joinTo(node9);
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		Node node3 = mModel.addNode("node3");
+		Node node4 = mModel.addNode("node4");
+		Node node5 = mModel.addNode("node5");
+		Node node6 = mModel.addNode("node6");
+		Node node7 = mModel.addNode("node7");
+		Node node8 = mModel.addNode("node8");
+		Node node9 = mModel.addNode("node9");
+		node2.joinTo("arc1", node1);
+		node5.joinTo("arc2", node2);
+		node5.joinTo("arc3", node3);
+		node5.joinTo("arc4", node4);
+		node5.joinTo("arc5", node6);
+		node5.joinTo("arc6", node7);
+		node5.joinTo("arc7", node8);
+		node8.joinTo("arc8", node9);
 
 		assertEquals(1, mModel.getGraphs().size());
-		
+
 		mListener.resume();
 		node5.remove();
 		assertEquals(6, mModel.getGraphs().size());
 
-		//assertEquals(events, mListener);
+		mListener.dump(sLog);
+		// assertEquals(events, mListener);
 	}
 
-	// @Test
-	// public void testGetAdjacentNodes()
-	// {
-	// ManagedEntityFactory factory = new ManagedEntityFactory();
-	// ManagedModel basicModel = factory.createModel();
-	// Node node1 = basicModel.addNode();
-	// Node node2 = basicModel.addNode();
-	// Node node3 = basicModel.addNode();
-	// Node node4 = basicModel.addNode();
-	// Node node5 = basicModel.addNode();
-	// Node node6 = basicModel.addNode();
-	// node1.joinTo(node2);
-	// node1.joinTo(node3);
-	// node1.joinTo(node4);
-	// node1.joinTo(node5);
-	// node1.joinTo(node6);
-	// Set<Node> nodes = node1.getAdjacentNodes();
-	// assertTrue(nodes.size() == 5);
-	// node2.remove();
-	// nodes = node1.getAdjacentNodes();
-	// assertTrue(nodes.size() == 4);
-	// }
-	//
-	// @Test
-	// public void testIsAdjacentTo()
-	// {
-	// ManagedEntityFactory factory = new ManagedEntityFactory();
-	// ManagedModel basicModel = factory.createModel();
-	// Node node1 = basicModel.addNode();
-	// Node node2 = basicModel.addNode();
-	// Node node3 = basicModel.addNode();
-	// Node node4 = basicModel.addNode();
-	// node1.joinTo(node2);
-	// node2.joinTo(node3);
-	// node3.joinTo(node4);
-	// node4.joinTo(node1);
-	// assertTrue(node1.isAdjacentTo(node2));
-	// assertTrue(node1.isAdjacentTo(node4));
-	// assertFalse(node1.isAdjacentTo(node3));
-	// }
-	//
+	@Test
+	public void testGetAdjacentNodes()
+	{
+		// Network
+		//
+		// ....+===========+=======+
+		// 1===2...3...4===5===6...7...8===9
+		// ........+=======+===========+
+		//
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		Node node3 = mModel.addNode("node3");
+		Node node4 = mModel.addNode("node4");
+		Node node5 = mModel.addNode("node5");
+		Node node6 = mModel.addNode("node6");
+		Node node7 = mModel.addNode("node7");
+		Node node8 = mModel.addNode("node8");
+		Node node9 = mModel.addNode("node9");
+		node2.joinTo("arc1", node1);
+		node5.joinTo("arc2", node2);
+		node5.joinTo("arc3", node3);
+		node5.joinTo("arc4", node4);
+		node5.joinTo("arc5", node6);
+		node5.joinTo("arc6", node7);
+		node5.joinTo("arc7", node8);
+		node8.joinTo("arc8", node9);
+
+		Set<? extends Node> nodes = node5.getAdjacentNodes();
+		assertTrue(nodes.size() == 6);
+		assertTrue(nodes.contains(node2));
+		assertTrue(nodes.contains(node3));
+		assertTrue(nodes.contains(node4));
+		assertTrue(nodes.contains(node6));
+		assertTrue(nodes.contains(node7));
+		assertTrue(nodes.contains(node8));
+	}
+
+	@Test
+	public void testIsAdjacentTo()
+	{
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
+		Node node3 = mModel.addNode("node3");
+		Node node4 = mModel.addNode("node4");
+		node1.joinTo("arc1", node2);
+		node2.joinTo("arc2", node3);
+		node3.joinTo("arc3", node4);
+		node4.joinTo("arc4", node1);
+
+		assertTrue(node1.isAdjacentTo(node2));
+		assertTrue(node1.isAdjacentTo(node4));
+		assertFalse(node1.isAdjacentTo(node3));
+	}
+
 	// @Test
 	// public void testGetAdjacentArc()
 	// {

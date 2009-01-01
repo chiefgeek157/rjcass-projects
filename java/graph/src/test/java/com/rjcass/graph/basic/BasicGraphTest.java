@@ -40,10 +40,10 @@ public class BasicGraphTest
 		mListener = new EventTraceListener();
 		mListener.pause();
 
-		ManagedModelFactory modelFactory = new BasicModelFactory();
+		ManagedModelFactory modelFactory = new BasicManagedModelFactory();
 		modelFactory.addModelFactoryListener(mListener);
 		modelFactory.getEntityFactory().addListener(mListener);
-		mModel = modelFactory.createManagedModel();
+		mModel = modelFactory.createManagedModel("model1");
 		mModel.addListener(mListener);
 	}
 
@@ -62,7 +62,7 @@ public class BasicGraphTest
 		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
 		events.addEvent(ListenerEvent.GRAPH_REMOVED);
 
-		Node node1 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
 		Graph node1Graph = node1.getGraph();
 
 		mListener.resume();
@@ -89,8 +89,8 @@ public class BasicGraphTest
 		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
 		events.addEvent(ListenerEvent.GRAPH_REMOVED);
 
-		Node node1 = mModel.addNode();
-		Node node2 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
+		Node node2 = mModel.addNode("node2");
 
 		Graph node1Graph = node1.getGraph();
 

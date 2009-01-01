@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.rjcass.graph.AbstractModelEntity;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.rjcass.graph.AdjacencyFilter;
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.ArcFilter;
@@ -17,11 +19,14 @@ import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicNode extends AbstractModelEntity implements ManagedNode
+public class BasicNode implements ManagedNode
 {
-	public ManagedGraph mGraph;
-	public Set<ManagedArc> mArcs;
-	public Set<NodeListener> mListeners;
+	private static Log sLog = LogFactory.getLog(BasicNode.class);
+
+	private String mId;
+	private ManagedGraph mGraph;
+	private Set<ManagedArc> mArcs;
+	private Set<NodeListener> mListeners;
 
 	public BasicNode()
 	{
@@ -31,20 +36,27 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	public boolean isValid()
 	{
-		return (mGraph != null && mGraph.isValid() && doIsValid());
+		return (mGraph != null && doIsValid());
+	}
+
+	public String getId()
+	{
+		validate();
+		return mId;
 	}
 
 	public Graph getGraph()
 	{
+		validate();
 		return getManagedGraph();
 	}
 
-	public Arc joinTo(Node node)
+	public Arc joinTo(String arcId, Node node)
 	{
-		return joinTo(node, false);
+		return joinTo(arcId, node, false);
 	}
 
-	public Arc joinTo(Node node, boolean directed)
+	public Arc joinTo(String arcId, Node node, boolean directed)
 	{
 		validate();
 
@@ -58,7 +70,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 			throw new IllegalArgumentException("Already connected to given Node");
 
 		// Delegate Arc creation to the Model
-		ManagedArc arc = getManagedGraph().getManagedModel().addManagedArc(this, (ManagedNode)node, directed);
+		ManagedArc arc = getManagedGraph().getManagedModel().addManagedArc(arcId, this, (ManagedNode)node, directed);
 
 		return arc;
 	}
@@ -108,6 +120,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	public Set<? extends Arc> getArcs()
 	{
+		validate();
 		return getManagedArcs();
 	}
 
@@ -159,6 +172,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	public Set<? extends Node> getAdjacentNodes()
 	{
+		validate();
 		return getAdjacentManagedNodes();
 	}
 
@@ -218,6 +232,11 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 		mListeners.remove(listener);
 	}
 
+	public void setId(String id)
+	{
+		mId = id;
+	}
+
 	public void setManagedGraph(ManagedGraph graph)
 	{
 		if (graph != mGraph)
@@ -247,23 +266,32 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	public ManagedGraph getManagedGraph()
 	{
-		validate();
 		return mGraph;
 	}
 
 	public Set<? extends ManagedArc> getManagedArcs()
 	{
-		validate();
 		return Collections.unmodifiableSet(new HashSet<ManagedArc>(mArcs));
 	}
 
 	public Set<? extends ManagedNode> getAdjacentManagedNodes()
 	{
-		validate();
 		Set<ManagedNode> nodes = new HashSet<ManagedNode>();
 		for (ManagedArc arc : mArcs)
 			nodes.add(arc.getOtherManagedNode(this));
 		return Collections.unmodifiableSet(nodes);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "BasicNode[" + mId + "]";
+	}
+
+	protected void validate()
+	{
+		if (!isValid())
+			throw new IllegalStateException();
 	}
 
 	protected boolean doIsValid()
@@ -273,6 +301,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	private void fireGraphSet(ManagedGraph oldGraph, ManagedGraph newGraph)
 	{
+		sLog.debug("Firing " + this + ".GraphSet(oldGraph:" + oldGraph + ",newGraph:" + newGraph + ")");
 		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
 		for (NodeListener listener : listeners)
 			listener.graphSet(this, oldGraph, newGraph);
@@ -280,6 +309,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	private void fireArcAdded(Arc arc)
 	{
+		sLog.debug("Firing " + this + ".ArcAdded(arc:" + arc + ")");
 		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
 		for (NodeListener listener : listeners)
 			listener.arcAdded(this, arc);
@@ -287,6 +317,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	private void fireArcRemoved(Arc arc)
 	{
+		sLog.debug("Firing " + this + ".ArcRemoved(arc:" + arc + ")");
 		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
 		for (NodeListener listener : listeners)
 			listener.arcRemoved(this, arc);
@@ -294,6 +325,7 @@ public class BasicNode extends AbstractModelEntity implements ManagedNode
 
 	private void fireRemoved()
 	{
+		sLog.debug("Firing " + this + ".Removed()");
 		Set<NodeListener> listeners = new HashSet<NodeListener>(mListeners);
 		for (NodeListener listener : listeners)
 			listener.removed(this);

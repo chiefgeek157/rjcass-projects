@@ -46,7 +46,7 @@ public class BasicManagedEntityFactoryTest
 		EventTraceListener events = new EventTraceListener();
 		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
 
-		ManagedGraph graph = mFactory.createGraph();
+		ManagedGraph graph = mFactory.createGraph("graph1");
 		assertEquals(BasicGraph.class, graph.getClass());
 
 		assertEquals(events, mListener);
@@ -58,7 +58,7 @@ public class BasicManagedEntityFactoryTest
 		EventTraceListener events = new EventTraceListener();
 		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
 
-		ManagedNode node = mFactory.createNode();
+		ManagedNode node = mFactory.createNode("node1");
 		assertEquals(BasicNode.class, node.getClass());
 
 		assertEquals(events, mListener);
@@ -70,7 +70,7 @@ public class BasicManagedEntityFactoryTest
 		EventTraceListener events = new EventTraceListener();
 		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
 
-		ManagedArc arc = mFactory.createArc();
+		ManagedArc arc = mFactory.createArc("arc1");
 		assertEquals(BasicArc.class, arc.getClass());
 
 		assertEquals(events, mListener);

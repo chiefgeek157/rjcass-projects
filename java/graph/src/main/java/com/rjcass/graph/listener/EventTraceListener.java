@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.ArcListener;
 import com.rjcass.graph.Graph;
@@ -85,6 +87,12 @@ public class EventTraceListener implements ModelFactoryListener, ManagedEntityFa
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(os));
 		for (ListenerEvent event : mEvents)
 			pw.println(event);
+	}
+
+	public void dump(Log log)
+	{
+		for (ListenerEvent event : mEvents)
+			log.debug(event);
 	}
 
 	public void modelCreated(Model model)

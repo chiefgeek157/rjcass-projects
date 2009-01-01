@@ -16,7 +16,7 @@ import com.rjcass.graph.managed.ManagedModel;
 
 public class BasicModelFactoryTest
 {
-	private BasicModelFactory mFactory;
+	private BasicManagedModelFactory mFactory;
 	private EventTraceListener mListener;
 
 	@BeforeClass
@@ -31,7 +31,7 @@ public class BasicModelFactoryTest
 	public void setUp() throws Exception
 	{
 		mListener = new EventTraceListener();
-		mFactory = new BasicModelFactory();
+		mFactory = new BasicManagedModelFactory();
 		mFactory.addModelFactoryListener(mListener);
 	}
 
@@ -45,7 +45,7 @@ public class BasicModelFactoryTest
 		EventTraceListener events = new EventTraceListener();
 		events.addEvent(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
 
-		Model model = mFactory.createModel();
+		Model model = mFactory.createModel("model1");
 		assertNotNull(model);
 		assertEquals(BasicModel.class, model.getClass());
 
@@ -58,7 +58,7 @@ public class BasicModelFactoryTest
 		EventTraceListener events = new EventTraceListener();
 		events.addEvent(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
 
-		ManagedModel model = mFactory.createManagedModel();
+		ManagedModel model = mFactory.createManagedModel("model1");
 		assertNotNull(model);
 		assertEquals(BasicModel.class, model.getClass());
 

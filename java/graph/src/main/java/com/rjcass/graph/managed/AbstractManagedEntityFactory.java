@@ -3,8 +3,13 @@ package com.rjcass.graph.managed;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public abstract class AbstractManagedEntityFactory implements ManagedEntityFactory
 {
+	private static Log sLog = LogFactory.getLog(AbstractManagedEntityFactory.class);
+
 	private Set<ManagedEntityFactoryListener> mListeners;
 
 	public void addListener(ManagedEntityFactoryListener listener)
@@ -17,29 +22,33 @@ public abstract class AbstractManagedEntityFactory implements ManagedEntityFacto
 		mListeners.remove(listener);
 	}
 
-	public ManagedGraph createGraph()
+	public ManagedGraph createGraph(String id)
 	{
 		ManagedGraph graph = doCreateGraph();
+		graph.setId(id);
 		fireGraphCreated(graph);
 		return graph;
 	}
 
-	public ManagedNode createNode()
+	public ManagedNode createNode(String id)
 	{
 		ManagedNode node = doCreateNode();
+		node.setId(id);
 		fireNodeCreated(node);
 		return node;
 	}
 
-	public ManagedArc createArc()
+	public ManagedArc createArc(String id)
 	{
 		ManagedArc arc = doCreateArc();
+		arc.setId(id);
 		fireArcCreated(arc);
 		return arc;
 	}
 
 	public void fireGraphCreated(ManagedGraph graph)
 	{
+		sLog.debug("Firing " + this + ".GraphCreated(graph:" + graph + ")");
 		Set<ManagedEntityFactoryListener> listeners = new HashSet<ManagedEntityFactoryListener>(mListeners);
 		for (ManagedEntityFactoryListener listener : listeners)
 			listener.graphCreated(graph);
@@ -47,6 +56,7 @@ public abstract class AbstractManagedEntityFactory implements ManagedEntityFacto
 
 	public void fireNodeCreated(ManagedNode node)
 	{
+		sLog.debug("Firing " + this + ".NodeCreated(node:" + node + ")");
 		Set<ManagedEntityFactoryListener> listeners = new HashSet<ManagedEntityFactoryListener>(mListeners);
 		for (ManagedEntityFactoryListener listener : listeners)
 			listener.nodeCreated(node);
@@ -54,6 +64,7 @@ public abstract class AbstractManagedEntityFactory implements ManagedEntityFacto
 
 	public void fireArcCreated(ManagedArc arc)
 	{
+		sLog.debug("Firing " + this + ".ArcCreated(arc:" + arc + ")");
 		Set<ManagedEntityFactoryListener> listeners = new HashSet<ManagedEntityFactoryListener>(mListeners);
 		for (ManagedEntityFactoryListener listener : listeners)
 			listener.arcCreated(arc);

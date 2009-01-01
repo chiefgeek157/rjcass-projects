@@ -25,11 +25,40 @@
     		<groupId>junit</groupId>
     		<artifactId>junit</artifactId>
     		<version>4.5</version>
+    		<scope>testing</scope>
     	</dependency>
     	<dependency>
     		<groupId>commons-logging</groupId>
     		<artifactId>commons-logging</artifactId>
     		<version>1.1.1</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>log4j</groupId>
+    		<artifactId>log4j</artifactId>
+    		<version>1.2.15</version>
+    		<scope>runtime</scope>
+    		<exclusions>
+    			<exclusion>
+    				<artifactId>jms</artifactId>
+    				<groupId>javax.jms</groupId>
+    			</exclusion>
+    			<exclusion>
+    				<artifactId>activation</artifactId>
+    				<groupId>javax.activation</groupId>
+    			</exclusion>
+    			<exclusion>
+    				<artifactId>mail</artifactId>
+    				<groupId>javax.mail</groupId>
+    			</exclusion>
+    			<exclusion>
+    				<artifactId>jmxtools</artifactId>
+    				<groupId>com.sun.jdmk</groupId>
+    			</exclusion>
+    			<exclusion>
+    				<artifactId>jmxri</artifactId>
+    				<groupId>com.sun.jmx</groupId>
+    			</exclusion>
+    		</exclusions>
     	</dependency>
     </dependencies>
 </project>

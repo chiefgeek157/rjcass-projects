@@ -6,6 +6,8 @@ import com.rjcass.graph.Graph;
 
 public interface ManagedGraph extends Graph
 {
+	void setId(String id);
+
 	void setManagedModel(ManagedModel model);
 
 	void addManagedNode(ManagedNode node);

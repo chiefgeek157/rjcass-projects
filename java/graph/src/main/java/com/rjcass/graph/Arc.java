@@ -1,15 +1,11 @@
 package com.rjcass.graph;
 
-public interface Arc extends ModelEntity
+public interface Arc
 {
 	enum Direction
 	{
 		UNDIRECTED, INBOUND, OUTBOUND
 	};
-
-	void setNodes(Node startNode, Node endNode);
-
-	void setNodes(Node startNode, Node endNode, boolean undirected);
 
 	void setUndirected();
 
@@ -19,8 +15,12 @@ public interface Arc extends ModelEntity
 
 	void remove();
 
+	boolean isValid();
+
+	String getId();
+
 	Graph getGraph();
-	
+
 	boolean isConnectedTo(Node node);
 
 	Node getStartNode();

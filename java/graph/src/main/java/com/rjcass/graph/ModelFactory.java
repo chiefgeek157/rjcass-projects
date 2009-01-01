@@ -2,7 +2,7 @@ package com.rjcass.graph;
 
 public interface ModelFactory
 {
-	Model createModel();
+	Model createModel(String id);
 
 	void addModelFactoryListener(ModelFactoryListener listener);
 

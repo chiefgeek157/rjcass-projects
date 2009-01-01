@@ -2,11 +2,11 @@ package com.rjcass.graph.managed;
 
 public interface ManagedEntityFactory
 {
-	public ManagedGraph createGraph();
+	public ManagedGraph createGraph(String id);
 
-	public ManagedNode createNode();
+	public ManagedNode createNode(String id);
 
-	public ManagedArc createArc();
+	public ManagedArc createArc(String id);
 
 	public void addListener(ManagedEntityFactoryListener listener);
 

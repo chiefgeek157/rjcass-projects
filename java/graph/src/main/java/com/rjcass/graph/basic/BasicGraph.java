@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.rjcass.graph.AbstractModelEntity;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.ArcFilter;
 import com.rjcass.graph.GraphListener;
@@ -16,8 +18,11 @@ import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicGraph extends AbstractModelEntity implements ManagedGraph
+public class BasicGraph implements ManagedGraph
 {
+	private static Log sLog = LogFactory.getLog(BasicGraph.class);
+
+	private String mId;
 	private ManagedModel mModel;
 	private Set<ManagedNode> mNodes;
 	private Set<ManagedArc> mArcs;
@@ -32,16 +37,24 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	public boolean isValid()
 	{
-		return (mModel != null && mModel.isValid());
+		return (mModel != null && doIsValid());
+	}
+
+	public String getId()
+	{
+		validate();
+		return mId;
 	}
 
 	public Model getModel()
 	{
+		validate();
 		return getManagedModel();
 	}
 
 	public Set<? extends Node> getNodes()
 	{
+		validate();
 		return getManagedNodes();
 	}
 
@@ -59,6 +72,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	public Set<? extends Arc> getArcs()
 	{
+		validate();
 		return getManagedArcs();
 	}
 
@@ -107,6 +121,11 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 		mListeners.remove(listener);
 	}
 
+	public void setId(String id)
+	{
+		mId = id;
+	}
+
 	public void setManagedModel(ManagedModel model)
 	{
 		if (model == null && mModel != null || model != null && model != mModel)
@@ -149,24 +168,39 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	public ManagedModel getManagedModel()
 	{
-		validate();
 		return mModel;
 	}
 
 	public Set<? extends ManagedNode> getManagedNodes()
 	{
-		validate();
 		return Collections.unmodifiableSet(new HashSet<ManagedNode>(mNodes));
 	}
 
 	public Set<? extends ManagedArc> getManagedArcs()
 	{
-		validate();
 		return Collections.unmodifiableSet(new HashSet<ManagedArc>(mArcs));
+	}
+
+	@Override
+	public String toString()
+	{
+		return "BasicGraph[" + mId + "]";
+	}
+
+	protected void validate()
+	{
+		if (!isValid())
+			throw new IllegalStateException();
+	}
+
+	protected boolean doIsValid()
+	{
+		return true;
 	}
 
 	private void fireModelSet(ManagedModel oldModel, ManagedModel newModel)
 	{
+		sLog.debug("Firing " + this + ".ModelSet(oldModel:" + oldModel + ",newModel:" + newModel + ")");
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.modelSet(this, oldModel, newModel);
@@ -174,6 +208,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	private void fireNodeAdded(ManagedNode node)
 	{
+		sLog.debug("Firing " + this + ".NodeAdded(node:" + node + ")");
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.nodeAdded(this, node);
@@ -181,6 +216,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	private void fireNodeRemoved(ManagedNode node)
 	{
+		sLog.debug("Firing " + this + ".NodeRemoved(node:" + node + ")");
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.nodeRemoved(this, node);
@@ -188,6 +224,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	private void fireArcAdded(ManagedArc arc)
 	{
+		sLog.debug("Firing " + this + ".ArcAdded(arc:" + arc + ")");
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.arcAdded(this, arc);
@@ -195,6 +232,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	private void fireArcRemoved(ManagedArc arc)
 	{
+		sLog.debug("Firing " + this + ".ArcRemoved(arc:" + arc + ")");
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.arcRemoved(this, arc);
@@ -202,6 +240,7 @@ public class BasicGraph extends AbstractModelEntity implements ManagedGraph
 
 	private void fireRemoved()
 	{
+		sLog.debug("Firing " + this + ".Removed()");
 		Set<GraphListener> listeners = new HashSet<GraphListener>(mListeners);
 		for (GraphListener listener : listeners)
 			listener.removed(this);

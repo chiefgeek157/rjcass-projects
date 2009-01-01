@@ -2,13 +2,17 @@ package com.rjcass.graph;
 
 import java.util.Set;
 
-public interface Node extends ModelEntity
+public interface Node
 {
+	boolean isValid();
+
+	String getId();
+
 	Graph getGraph();
 
-	Arc joinTo(Node node);
+	Arc joinTo(String arcId, Node node);
 
-	Arc joinTo(Node node, boolean directed);
+	Arc joinTo(String arcId, Node node, boolean directed);
 
 	void disconnectFrom(Node node);
 
@@ -17,11 +21,11 @@ public interface Node extends ModelEntity
 	Arc getConnectingArc(Node node);
 
 	Set<? extends Arc> getArcs();
-	
+
 	Set<? extends Arc> getInboundArcs();
 
 	Set<? extends Arc> getOutboundArcs();
-	
+
 	Set<? extends Arc> getArcs(ArcFilter filter);
 
 	Set<? extends Arc> getArcs(NodeFilter filter);
@@ -35,7 +39,7 @@ public interface Node extends ModelEntity
 	Set<? extends Node> getInboundNodes();
 
 	Set<? extends Node> getOutboundNodes();
-	
+
 	Set<? extends Node> getAdjacentNodes(ArcFilter filter);
 
 	Set<? extends Node> getAdjacentNodes(NodeFilter filter);

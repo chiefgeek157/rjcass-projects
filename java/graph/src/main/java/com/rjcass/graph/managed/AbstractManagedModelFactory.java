@@ -3,11 +3,16 @@ package com.rjcass.graph.managed;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.rjcass.graph.Model;
 import com.rjcass.graph.ModelFactoryListener;
 
 public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 {
+	private static Log sLog = LogFactory.getLog(AbstractManagedModelFactory.class);
+
 	private Set<ModelFactoryListener> mListeners;
 	private ManagedEntityFactory mEntityFactory;
 
@@ -31,14 +36,15 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 		return mEntityFactory;
 	}
 
-	public final Model createModel()
+	public final Model createModel(String id)
 	{
-		return createManagedModel();
+		return createManagedModel(id);
 	}
 
-	public final ManagedModel createManagedModel()
+	public final ManagedModel createManagedModel(String id)
 	{
 		ManagedModel model = doCreateManagedModel();
+		model.setId(id);
 		model.setManagedEntityFactory(mEntityFactory);
 		fireModelCreated(model);
 		return model;
@@ -53,6 +59,7 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 
 	private void fireModelCreated(ManagedModel model)
 	{
+		sLog.debug("Firing " + this + ".ModelCreated(model:" + model + ")");
 		Set<ModelFactoryListener> listeners = new HashSet<ModelFactoryListener>(mListeners);
 		for (ModelFactoryListener listener : listeners)
 			listener.modelCreated(model);

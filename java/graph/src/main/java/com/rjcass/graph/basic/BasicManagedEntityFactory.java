@@ -11,6 +11,12 @@ public class BasicManagedEntityFactory extends AbstractManagedEntityFactory
 	{}
 
 	@Override
+	public String toString()
+	{
+		return "BasicManagedModelFactory["+hashCode()+"]";
+	}
+
+	@Override
 	protected ManagedGraph doCreateGraph()
 	{
 		return new BasicGraph();

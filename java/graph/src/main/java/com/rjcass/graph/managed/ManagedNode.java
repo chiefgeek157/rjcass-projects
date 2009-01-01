@@ -6,6 +6,8 @@ import com.rjcass.graph.Node;
 
 public interface ManagedNode extends Node
 {
+	void setId(String id);
+
 	void setManagedGraph(ManagedGraph graph);
 
 	void addManagedArc(ManagedArc arc);
@@ -13,7 +15,7 @@ public interface ManagedNode extends Node
 	void removeManagedArc(ManagedArc arc);
 
 	void removeNotifyOnly();
-	
+
 	ManagedGraph getManagedGraph();
 
 	Set<? extends ManagedArc> getManagedArcs();

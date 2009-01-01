@@ -3,13 +3,20 @@ package com.rjcass.graph.basic;
 import com.rjcass.graph.managed.AbstractManagedModelFactory;
 import com.rjcass.graph.managed.ManagedModel;
 
-public class BasicModelFactory extends AbstractManagedModelFactory
+public class BasicManagedModelFactory extends AbstractManagedModelFactory
 {
-	public BasicModelFactory()
+	public BasicManagedModelFactory()
 	{
 		setEntityFactory(new BasicManagedEntityFactory());
 	}
 
+	@Override
+	public String toString()
+	{
+		return "BasicModelFactory[" + hashCode() + "]";
+	}
+
+	@Override
 	protected ManagedModel doCreateManagedModel()
 	{
 		return new BasicModel();

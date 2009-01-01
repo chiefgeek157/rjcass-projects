@@ -41,10 +41,10 @@ public class BasicModelTest
 		mListener = new EventTraceListener();
 		mListener.pause();
 
-		ManagedModelFactory modelFactory = new BasicModelFactory();
+		ManagedModelFactory modelFactory = new BasicManagedModelFactory();
 		modelFactory.addModelFactoryListener(mListener);
 		modelFactory.getEntityFactory().addListener(mListener);
-		mModel = modelFactory.createManagedModel();
+		mModel = modelFactory.createManagedModel("model1");
 		mModel.addListener(mListener);
 	}
 
@@ -77,8 +77,8 @@ public class BasicModelTest
 		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
 
 		mListener.resume();
-		
-		Node node1 = mModel.addNode();
+
+		Node node1 = mModel.addNode("node1");
 
 		Graph node1Graph = node1.getGraph();
 		assertEquals(mModel, node1Graph.getModel());
@@ -110,10 +110,10 @@ public class BasicModelTest
 		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
 		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
 
-		Node node1 = mModel.addNode();
+		Node node1 = mModel.addNode("node1");
 
 		mListener.resume();
-		Node node2 = mModel.addNode();
+		Node node2 = mModel.addNode("node2");
 
 		Graph node1Graph = node1.getGraph();
 		assertEquals(mModel, node1Graph.getModel());
@@ -146,19 +146,22 @@ public class BasicModelTest
 		assertEquals(events, mListener);
 	}
 
-	@Ignore("Not yet implemented") @Test
+	@Ignore("Not yet implemented")
+	@Test
 	public void testGetGraphsGraphFilter()
 	{
 		fail("Not yet implemented");
 	}
 
-	@Ignore("Not yet implemented") @Test
+	@Ignore("Not yet implemented")
+	@Test
 	public void testGetNodesNodeFilter()
 	{
 		fail("Not yet implemented");
 	}
 
-	@Ignore("Not yet implemented") @Test
+	@Ignore("Not yet implemented")
+	@Test
 	public void testGetArcsArcFilter()
 	{
 		fail("Not yet implemented");
