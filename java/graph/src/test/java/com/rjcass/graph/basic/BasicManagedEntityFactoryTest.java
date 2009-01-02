@@ -2,6 +2,8 @@ package com.rjcass.graph.basic;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -9,14 +11,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.rjcass.graph.listener.EventTraceListener;
-import com.rjcass.graph.listener.ListenerEvent;
+import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedEntityFactory;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicManagedEntityFactoryTest
+public class BasicManagedEntityFactoryTest extends BasicTestBase
 {
+	private static final Logger sLog = Logger.getLogger(BasicManagedEntityFactoryTest.class);
+
 	private ManagedEntityFactory mFactory;
 	private EventTraceListener mListener;
 
@@ -43,36 +47,45 @@ public class BasicManagedEntityFactoryTest
 	@Test
 	public void testCreateGraph()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+		sLog.setLevel(Level.OFF);
 
-		ManagedGraph graph = mFactory.createGraph("graph1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_GRAPH_CREATED, "graph1");
+
+		ManagedGraph graph = mFactory.createGraph();
 		assertEquals(BasicGraph.class, graph.getClass());
 
+		dump("testCreateGraph", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testCreateNode()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+		sLog.setLevel(Level.OFF);
 
-		ManagedNode node = mFactory.createNode("node1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_NODE_CREATED, "node1");
+
+		ManagedNode node = mFactory.createNode();
 		assertEquals(BasicNode.class, node.getClass());
 
+		dump("testCreateNode", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testCreateArc()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
+		sLog.setLevel(Level.OFF);
 
-		ManagedArc arc = mFactory.createArc("arc1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_ARC_CREATED, "arc1");
+
+		ManagedArc arc = mFactory.createArc();
 		assertEquals(BasicArc.class, arc.getClass());
 
+		dump("testCreateArc", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 }

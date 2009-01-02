@@ -15,6 +15,7 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 
 	private Set<ModelFactoryListener> mListeners;
 	private ManagedEntityFactory mEntityFactory;
+	private int mNextModelId;
 
 	public void addModelFactoryListener(ModelFactoryListener listener)
 	{
@@ -36,15 +37,15 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 		return mEntityFactory;
 	}
 
-	public final Model createModel(String id)
+	public final Model createModel()
 	{
-		return createManagedModel(id);
+		return createManagedModel();
 	}
 
-	public final ManagedModel createManagedModel(String id)
+	public final ManagedModel createManagedModel()
 	{
 		ManagedModel model = doCreateManagedModel();
-		model.setId(id);
+		model.setId("model" + getNextModelId());
 		model.setManagedEntityFactory(mEntityFactory);
 		fireModelCreated(model);
 		return model;
@@ -52,7 +53,13 @@ public abstract class AbstractManagedModelFactory implements ManagedModelFactory
 
 	protected AbstractManagedModelFactory()
 	{
+		mNextModelId = 1;
 		mListeners = new HashSet<ModelFactoryListener>();
+	}
+
+	protected int getNextModelId()
+	{
+		return mNextModelId++;
 	}
 
 	protected abstract ManagedModel doCreateManagedModel();

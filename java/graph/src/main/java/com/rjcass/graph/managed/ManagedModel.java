@@ -8,7 +8,7 @@ public interface ManagedModel extends Model
 
 	void setManagedEntityFactory(ManagedEntityFactory factory);
 
-	ManagedArc addManagedArc(String id, ManagedNode node1, ManagedNode node2, boolean directed);
+	ManagedArc addManagedArc(ManagedNode node1, ManagedNode node2, boolean directed);
 
 	void removeManagedArc(ManagedArc arc);
 

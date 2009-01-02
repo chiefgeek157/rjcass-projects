@@ -6,11 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -20,18 +17,17 @@ import org.junit.Test;
 import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
 import com.rjcass.graph.listener.EventTraceListener;
-import com.rjcass.graph.listener.ListenerEvent;
+import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedModelFactory;
 
-public class BasicNodeTest
+public class BasicNodeTest extends BasicTestBase
 {
-	private static Log sLog = LogFactory.getLog(BasicNodeTest.class);
+	private static Logger sLog = Logger.getLogger(BasicNodeTest.class);
 
 	private ManagedModelFactory mFactory;
 	private ManagedModel mModel;
 	private EventTraceListener mListener;
-	private ConsoleAppender mAppender;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
@@ -44,48 +40,43 @@ public class BasicNodeTest
 	@Before
 	public void setUp() throws Exception
 	{
-		PatternLayout layout = new PatternLayout("%r: %m\n");
-		mAppender = new ConsoleAppender(layout, ConsoleAppender.SYSTEM_OUT);
-
-		Logger.getRootLogger().addAppender(mAppender);
-
 		mListener = new EventTraceListener();
 		mListener.pause();
 
 		mFactory = new BasicManagedModelFactory();
 		mFactory.addModelFactoryListener(mListener);
 		mFactory.getEntityFactory().addListener(mListener);
-		mModel = mFactory.createManagedModel("test");
+		mModel = mFactory.createManagedModel();
 		mModel.addListener(mListener);
 	}
 
 	@After
 	public void tearDown() throws Exception
-	{
-		Logger.getRootLogger().removeAppender(mAppender);
-	}
+	{}
 
 	@Test
 	public void testJoinTo()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
-		events.addEvent(ListenerEvent.ARC_NODES_SET);
-		events.addEvent(ListenerEvent.NODE_ARC_ADDED);
-		events.addEvent(ListenerEvent.NODE_ARC_ADDED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
-		events.addEvent(ListenerEvent.MODEL_GRAPHS_MERGED);
-		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_ARC_ADDED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_ARC_CREATED, "arc1");
+		events.addEvent(ListenerEventType.ARC_NODES_SET, "arc1", null, null, "node1", "node2");
+		events.addEvent(ListenerEventType.NODE_ARC_ADDED, "node1", "arc1");
+		events.addEvent(ListenerEventType.NODE_ARC_ADDED, "node2", "arc1");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", "graph1", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph1", "node1");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph1", "model1", null);
+		events.addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, "model1", "graph1");
+		events.addEvent(ListenerEventType.GRAPH_REMOVED, "graph1");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", null, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_NODE_ADDED, "graph2", "node1");
+		events.addEvent(ListenerEventType.MODEL_GRAPHS_MERGED, "model1", "graph1", "graph2");
+		events.addEvent(ListenerEventType.ARC_GRAPH_SET, "arc1", null, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_ARC_ADDED, "graph2", "arc1");
+
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
 		assertEquals(2, mModel.getGraphs().size());
 
 		Graph graph1 = node1.getGraph();
@@ -97,7 +88,7 @@ public class BasicNodeTest
 		assertEquals(1, graph2.getNodes().size());
 
 		mListener.resume();
-		node1.joinTo("arc1", node2);
+		node1.joinTo(node2);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -106,31 +97,34 @@ public class BasicNodeTest
 		assertTrue(graph2.isValid());
 		assertEquals(2, graph2.getNodes().size());
 
+		dump("testJoinTo", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testJoinToTwoWay()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
-		events.addEvent(ListenerEvent.ARC_NODES_SET);
-		events.addEvent(ListenerEvent.NODE_ARC_ADDED);
-		events.addEvent(ListenerEvent.NODE_ARC_ADDED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
-		events.addEvent(ListenerEvent.MODEL_GRAPHS_MERGED);
-		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_ARC_ADDED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		Node node3 = mModel.addNode("node3");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_ARC_CREATED, "arc2");
+		events.addEvent(ListenerEventType.ARC_NODES_SET, "arc2", null, null, "node2", "node3");
+		events.addEvent(ListenerEventType.NODE_ARC_ADDED, "node2", "arc2");
+		events.addEvent(ListenerEventType.NODE_ARC_ADDED, "node3", "arc2");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node3", "graph3", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph3", "node3");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph3", "model1", null);
+		events.addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, "model1", "graph3");
+		events.addEvent(ListenerEventType.GRAPH_REMOVED, "graph3");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node3", null, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_NODE_ADDED, "graph2", "node3");
+		events.addEvent(ListenerEventType.MODEL_GRAPHS_MERGED, "model1", "graph3", "graph2");
+		events.addEvent(ListenerEventType.ARC_GRAPH_SET, "arc2", null, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_ARC_ADDED, "graph2", "arc2");
+
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
 		assertEquals(3, mModel.getGraphs().size());
 
 		Graph graph1 = node1.getGraph();
@@ -145,7 +139,7 @@ public class BasicNodeTest
 		assertTrue(graph3.isValid());
 		assertEquals(1, graph3.getNodes().size());
 
-		node1.joinTo("arc1", node2);
+		node1.joinTo(node2);
 
 		assertEquals(2, mModel.getGraphs().size());
 
@@ -158,7 +152,7 @@ public class BasicNodeTest
 		assertEquals(1, graph3.getNodes().size());
 
 		mListener.resume();
-		node2.joinTo("arc2", node3);
+		node2.joinTo(node3);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -167,23 +161,26 @@ public class BasicNodeTest
 
 		assertFalse(graph3.isValid());
 
+		dump("testJoinToTwoWay", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testJoinToThreeWay()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
-		events.addEvent(ListenerEvent.ARC_NODES_SET);
-		events.addEvent(ListenerEvent.NODE_ARC_ADDED);
-		events.addEvent(ListenerEvent.NODE_ARC_ADDED);
-		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_ARC_ADDED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		Node node3 = mModel.addNode("node3");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_ARC_CREATED, "arc3");
+		events.addEvent(ListenerEventType.ARC_NODES_SET, "arc3", null, null, "node3", "node1");
+		events.addEvent(ListenerEventType.NODE_ARC_ADDED, "node3", "arc3");
+		events.addEvent(ListenerEventType.NODE_ARC_ADDED, "node1", "arc3");
+		events.addEvent(ListenerEventType.ARC_GRAPH_SET, "arc3", null, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_ARC_ADDED, "graph2", "arc3");
+
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
 		assertEquals(3, mModel.getGraphs().size());
 
 		Graph graph1 = node1.getGraph();
@@ -198,7 +195,7 @@ public class BasicNodeTest
 		assertTrue(graph3.isValid());
 		assertEquals(1, graph3.getNodes().size());
 
-		node1.joinTo("arc1", node2);
+		node1.joinTo(node2);
 
 		assertEquals(2, mModel.getGraphs().size());
 
@@ -210,7 +207,7 @@ public class BasicNodeTest
 		assertTrue(graph3.isValid());
 		assertEquals(1, graph3.getNodes().size());
 
-		node2.joinTo("arc2", node3);
+		node2.joinTo(node3);
 
 		assertEquals(1, mModel.getGraphs().size());
 
@@ -220,166 +217,158 @@ public class BasicNodeTest
 		assertFalse(graph3.isValid());
 
 		mListener.resume();
-		node3.joinTo("arc3", node1);
+		node3.joinTo(node1);
 
 		assertEquals(1, mModel.getGraphs().size());
 
 		assertTrue(graph2.isValid());
 		assertEquals(3, graph2.getNodes().size());
 
+		dump("testJoinToThreeWay", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailToSelf()
 	{
-		Node node1 = mModel.addNode("node1");
-		node1.joinTo("arc1", node1);
+		Node node1 = mModel.addNode();
+		node1.joinTo(node1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailToSameNode()
 	{
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		node1.joinTo("arc1", node2);
-		node1.joinTo("arc2", node2);
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		node1.joinTo(node2);
+		node1.joinTo(node2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailInvalidNode()
 	{
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
 		node2.remove();
-		node1.joinTo("arc1", node2);
+		node1.joinTo(node2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testJoinToFailWrongModel()
 	{
-		Node node1 = mModel.addNode("node1");
-		ManagedModel model2 = mFactory.createManagedModel("test2");
-		Node node2 = model2.addNode("node2");
-		node1.joinTo("arc1", node2);
+		Node node1 = mModel.addNode();
+		ManagedModel model2 = mFactory.createManagedModel();
+		Node node2 = model2.addNode();
+		node1.joinTo(node2);
 	}
 
 	@Test
 	public void testDisconnectFrom()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_ADDED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
-		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_ARC_REMOVED);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_SPLIT);
-		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
-		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
-		events.addEvent(ListenerEvent.ARC_REMOVED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		node1.joinTo("arc1", node2);
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_GRAPH_CREATED, "graph3");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph3", null, "model1");
+		events.addEvent(ListenerEventType.MODEL_GRAPH_ADDED, "model1", "graph3");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node2", "graph2", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph2", "node2");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node2", null, "graph3");
+		events.addEvent(ListenerEventType.GRAPH_NODE_ADDED, "graph3", "node2");
+		events.addEvent(ListenerEventType.ARC_GRAPH_SET, "arc1", "graph2", null);
+		events.addEvent(ListenerEventType.GRAPH_ARC_REMOVED, "graph2", "arc1");
+		events.addEvent(ListenerEventType.MODEL_GRAPH_SPLIT, "model1", "graph2", "graph3");
+		events.addEvent(ListenerEventType.NODE_ARC_REMOVED, "node1", "arc1");
+		events.addEvent(ListenerEventType.NODE_ARC_REMOVED, "node2", "arc1");
+		events.addEvent(ListenerEventType.ARC_REMOVED, "arc1");
+
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		node1.joinTo(node2);
 
 		mListener.resume();
 		node1.disconnectFrom(node2);
 		assertEquals(0, node1.getArcs().size());
 		assertEquals(0, node2.getArcs().size());
 
+		dump("testDisconnectFrom", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testDisconnectFromFailNotConnected()
 	{
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
 		node1.disconnectFrom(node2);
 	}
 
 	@Test
 	public void testRemoveTheOnlyNode()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.NODE_REMOVED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", "graph1", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph1", "node1");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph1", "model1", null);
+		events.addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, "model1", "graph1");
+		events.addEvent(ListenerEventType.GRAPH_REMOVED, "graph1");
+		events.addEvent(ListenerEventType.NODE_REMOVED, "node1");
+
+		Node node1 = mModel.addNode();
 
 		mListener.resume();
 		node1.remove();
 		assertFalse(node1.isValid());
 		assertEquals(0, mModel.getGraphs().size());
 
+		dump("testRemoveTheOnlyNode", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testRemoveNotTheOnlyNode()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_ADDED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
-		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_ARC_REMOVED);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_SPLIT);
-		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
-		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
-		events.addEvent(ListenerEvent.ARC_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.NODE_REMOVED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		node1.joinTo("arc1", node2);
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_GRAPH_CREATED, "graph3");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph3", null, "model1");
+		events.addEvent(ListenerEventType.MODEL_GRAPH_ADDED, "model1", "graph3");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node2", "graph2", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph2", "node2");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node2", null, "graph3");
+		events.addEvent(ListenerEventType.GRAPH_NODE_ADDED, "graph3", "node2");
+		events.addEvent(ListenerEventType.ARC_GRAPH_SET, "arc1", "graph2", null);
+		events.addEvent(ListenerEventType.GRAPH_ARC_REMOVED, "graph2", "arc1");
+		events.addEvent(ListenerEventType.MODEL_GRAPH_SPLIT, "model1", "graph2", "graph3");
+		events.addEvent(ListenerEventType.NODE_ARC_REMOVED, "node1", "arc1");
+		events.addEvent(ListenerEventType.NODE_ARC_REMOVED, "node2", "arc1");
+		events.addEvent(ListenerEventType.ARC_REMOVED, "arc1");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", "graph2", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph2", "node1");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph2", "model1", null);
+		events.addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, "model1", "graph2");
+		events.addEvent(ListenerEventType.GRAPH_REMOVED, "graph2");
+		events.addEvent(ListenerEventType.NODE_REMOVED, "node1");
+
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		node1.joinTo(node2);
 
 		mListener.resume();
 		node1.remove();
 		assertEquals(1, mModel.getGraphs().size());
 
+		dump("testRemoveNotTheOnlyNode", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testRemovePartOfANetwork()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_ADDED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
-		events.addEvent(ListenerEvent.ARC_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_ARC_REMOVED);
-		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
-		events.addEvent(ListenerEvent.NODE_ARC_REMOVED);
-		events.addEvent(ListenerEvent.ARC_REMOVED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.NODE_REMOVED);
+		sLog.setLevel(Level.DEBUG);
 
 		// Network
 		//
@@ -387,32 +376,29 @@ public class BasicNodeTest
 		// 1===2...3...4===5===6...7...8===9
 		// ........+=======+===========+
 		//
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		Node node3 = mModel.addNode("node3");
-		Node node4 = mModel.addNode("node4");
-		Node node5 = mModel.addNode("node5");
-		Node node6 = mModel.addNode("node6");
-		Node node7 = mModel.addNode("node7");
-		Node node8 = mModel.addNode("node8");
-		Node node9 = mModel.addNode("node9");
-		node2.joinTo("arc1", node1);
-		node5.joinTo("arc2", node2);
-		node5.joinTo("arc3", node3);
-		node5.joinTo("arc4", node4);
-		node5.joinTo("arc5", node6);
-		node5.joinTo("arc6", node7);
-		node5.joinTo("arc7", node8);
-		node8.joinTo("arc8", node9);
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Node node4 = mModel.addNode();
+		Node node5 = mModel.addNode();
+		Node node6 = mModel.addNode();
+		Node node7 = mModel.addNode();
+		Node node8 = mModel.addNode();
+		Node node9 = mModel.addNode();
+		node2.joinTo(node1);
+		node5.joinTo(node2);
+		node5.joinTo(node3);
+		node5.joinTo(node4);
+		node5.joinTo(node6);
+		node5.joinTo(node7);
+		node5.joinTo(node8);
+		node8.joinTo(node9);
 
 		assertEquals(1, mModel.getGraphs().size());
 
 		mListener.resume();
 		node5.remove();
 		assertEquals(6, mModel.getGraphs().size());
-
-		mListener.dump(sLog);
-		// assertEquals(events, mListener);
 	}
 
 	@Test
@@ -424,23 +410,23 @@ public class BasicNodeTest
 		// 1===2...3...4===5===6...7...8===9
 		// ........+=======+===========+
 		//
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		Node node3 = mModel.addNode("node3");
-		Node node4 = mModel.addNode("node4");
-		Node node5 = mModel.addNode("node5");
-		Node node6 = mModel.addNode("node6");
-		Node node7 = mModel.addNode("node7");
-		Node node8 = mModel.addNode("node8");
-		Node node9 = mModel.addNode("node9");
-		node2.joinTo("arc1", node1);
-		node5.joinTo("arc2", node2);
-		node5.joinTo("arc3", node3);
-		node5.joinTo("arc4", node4);
-		node5.joinTo("arc5", node6);
-		node5.joinTo("arc6", node7);
-		node5.joinTo("arc7", node8);
-		node8.joinTo("arc8", node9);
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Node node4 = mModel.addNode();
+		Node node5 = mModel.addNode();
+		Node node6 = mModel.addNode();
+		Node node7 = mModel.addNode();
+		Node node8 = mModel.addNode();
+		Node node9 = mModel.addNode();
+		node2.joinTo(node1);
+		node5.joinTo(node2);
+		node5.joinTo(node3);
+		node5.joinTo(node4);
+		node5.joinTo(node6);
+		node5.joinTo(node7);
+		node5.joinTo(node8);
+		node8.joinTo(node9);
 
 		Set<? extends Node> nodes = node5.getAdjacentNodes();
 		assertTrue(nodes.size() == 6);
@@ -455,14 +441,14 @@ public class BasicNodeTest
 	@Test
 	public void testIsAdjacentTo()
 	{
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
-		Node node3 = mModel.addNode("node3");
-		Node node4 = mModel.addNode("node4");
-		node1.joinTo("arc1", node2);
-		node2.joinTo("arc2", node3);
-		node3.joinTo("arc3", node4);
-		node4.joinTo("arc4", node1);
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Node node4 = mModel.addNode();
+		node1.joinTo(node2);
+		node2.joinTo(node3);
+		node3.joinTo(node4);
+		node4.joinTo(node1);
 
 		assertTrue(node1.isAdjacentTo(node2));
 		assertTrue(node1.isAdjacentTo(node4));

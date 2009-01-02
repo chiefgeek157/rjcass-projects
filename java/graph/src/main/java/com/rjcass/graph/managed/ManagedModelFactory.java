@@ -6,7 +6,7 @@ public interface ManagedModelFactory extends ModelFactory
 {
 	void setEntityFactory(ManagedEntityFactory factory);
 
-	ManagedModel createManagedModel(String id);
+	ManagedModel createManagedModel();
 	
 	ManagedEntityFactory getEntityFactory();
 }

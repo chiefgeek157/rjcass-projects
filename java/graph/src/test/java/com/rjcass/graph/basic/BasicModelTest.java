@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,12 +20,14 @@ import com.rjcass.graph.Arc;
 import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
 import com.rjcass.graph.listener.EventTraceListener;
-import com.rjcass.graph.listener.ListenerEvent;
+import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedModelFactory;
 
-public class BasicModelTest
+public class BasicModelTest extends BasicTestBase
 {
+	private static final Logger sLog = Logger.getLogger(BasicModelTest.class);
+
 	private ManagedModel mModel;
 	private EventTraceListener mListener;
 
@@ -44,7 +48,7 @@ public class BasicModelTest
 		ManagedModelFactory modelFactory = new BasicManagedModelFactory();
 		modelFactory.addModelFactoryListener(mListener);
 		modelFactory.getEntityFactory().addListener(mListener);
-		mModel = modelFactory.createManagedModel("model1");
+		mModel = modelFactory.createManagedModel();
 		mModel.addListener(mListener);
 	}
 
@@ -68,17 +72,19 @@ public class BasicModelTest
 	@Test
 	public void testAddOneNode()
 	{
+		sLog.setLevel(Level.OFF);
+
 		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_ADDED);
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_GRAPH_CREATED, "graph1");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph1", null, "model1");
+		events.addEvent(ListenerEventType.MODEL_GRAPH_ADDED, "model1", "graph1");
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_NODE_CREATED, "node1");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", null, "graph1");
+		events.addEvent(ListenerEventType.GRAPH_NODE_ADDED, "graph1", "node1");
 
 		mListener.resume();
 
-		Node node1 = mModel.addNode("node1");
+		Node node1 = mModel.addNode();
 
 		Graph node1Graph = node1.getGraph();
 		assertEquals(mModel, node1Graph.getModel());
@@ -95,25 +101,27 @@ public class BasicModelTest
 		assertEquals(1, node1GraphNodes.size());
 		assertEquals(node1, node1GraphNodes.iterator().next());
 
-		mListener.dump(System.out);
+		dump("testAddOneNode", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testAddTwoNodes()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_ADDED);
-		events.addEvent(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_ADDED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_GRAPH_CREATED, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph2", null, "model1");
+		events.addEvent(ListenerEventType.MODEL_GRAPH_ADDED, "model1", "graph2");
+		events.addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_NODE_CREATED, "node2");
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node2", null, "graph2");
+		events.addEvent(ListenerEventType.GRAPH_NODE_ADDED, "graph2", "node2");
+
+		Node node1 = mModel.addNode();
 
 		mListener.resume();
-		Node node2 = mModel.addNode("node2");
+		Node node2 = mModel.addNode();
 
 		Graph node1Graph = node1.getGraph();
 		assertEquals(mModel, node1Graph.getModel());
@@ -143,6 +151,7 @@ public class BasicModelTest
 		assertEquals(1, node2GraphNodes.size());
 		assertEquals(node2, node2GraphNodes.iterator().next());
 
+		dump("testAddTwoNodes", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 

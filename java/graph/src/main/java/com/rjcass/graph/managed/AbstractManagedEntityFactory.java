@@ -11,6 +11,9 @@ public abstract class AbstractManagedEntityFactory implements ManagedEntityFacto
 	private static Log sLog = LogFactory.getLog(AbstractManagedEntityFactory.class);
 
 	private Set<ManagedEntityFactoryListener> mListeners;
+	private int mNextGraphId;
+	private int mNextNodeId;
+	private int mNextArcId;
 
 	public void addListener(ManagedEntityFactoryListener listener)
 	{
@@ -22,26 +25,26 @@ public abstract class AbstractManagedEntityFactory implements ManagedEntityFacto
 		mListeners.remove(listener);
 	}
 
-	public ManagedGraph createGraph(String id)
+	public ManagedGraph createGraph()
 	{
 		ManagedGraph graph = doCreateGraph();
-		graph.setId(id);
+		graph.setId("graph"+getNextGraphId());
 		fireGraphCreated(graph);
 		return graph;
 	}
 
-	public ManagedNode createNode(String id)
+	public ManagedNode createNode()
 	{
 		ManagedNode node = doCreateNode();
-		node.setId(id);
+		node.setId("node"+getNextNodeId());
 		fireNodeCreated(node);
 		return node;
 	}
 
-	public ManagedArc createArc(String id)
+	public ManagedArc createArc()
 	{
 		ManagedArc arc = doCreateArc();
-		arc.setId(id);
+		arc.setId("arc"+getNextArcId());
 		fireArcCreated(arc);
 		return arc;
 	}
@@ -72,7 +75,25 @@ public abstract class AbstractManagedEntityFactory implements ManagedEntityFacto
 
 	protected AbstractManagedEntityFactory()
 	{
+		mNextGraphId = 1;
+		mNextNodeId = 1;
+		mNextArcId = 1;
 		mListeners = new HashSet<ManagedEntityFactoryListener>();
+	}
+
+	protected int getNextGraphId()
+	{
+		return mNextGraphId++;
+	}
+
+	protected int getNextNodeId()
+	{
+		return mNextNodeId++;
+	}
+
+	protected int getNextArcId()
+	{
+		return mNextArcId++;
 	}
 
 	protected abstract ManagedGraph doCreateGraph();

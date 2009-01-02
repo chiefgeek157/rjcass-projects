@@ -18,6 +18,8 @@ public class BasicArc implements ManagedArc
 	private static Log sLog = LogFactory.getLog(BasicArc.class);
 
 	private String mId;
+	private String mName;
+
 	private ManagedGraph mGraph;
 	private ManagedNode mStartNode;
 	private ManagedNode mEndNode;
@@ -65,6 +67,17 @@ public class BasicArc implements ManagedArc
 	public String getId()
 	{
 		return mId;
+	}
+
+
+	public void setName(String name)
+	{
+		mName = name;
+	}
+
+	public String getName()
+	{
+		return mName;
 	}
 
 	public Graph getGraph()

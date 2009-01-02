@@ -2,13 +2,9 @@ package com.rjcass.graph;
 
 import java.util.Set;
 
-public interface Model
+public interface Model extends ModelEntity
 {
-	Node addNode(String id);
-
-	boolean isValid();
-
-	String getId();
+	Node addNode();
 
 	Set<? extends Graph> getGraphs();
 

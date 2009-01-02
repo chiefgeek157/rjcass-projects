@@ -3,6 +3,8 @@ package com.rjcass.graph.basic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,11 +13,13 @@ import org.junit.Test;
 
 import com.rjcass.graph.Model;
 import com.rjcass.graph.listener.EventTraceListener;
-import com.rjcass.graph.listener.ListenerEvent;
+import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
 
-public class BasicModelFactoryTest
+public class BasicModelFactoryTest extends BasicTestBase
 {
+	private static final Logger sLog = Logger.getLogger(BasicModelFactoryTest.class);
+
 	private BasicManagedModelFactory mFactory;
 	private EventTraceListener mListener;
 
@@ -42,26 +46,32 @@ public class BasicModelFactoryTest
 	@Test
 	public void testCreateModel()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
+		sLog.setLevel(Level.OFF);
 
-		Model model = mFactory.createModel("model1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MODEL_FACTORY_MODEL_CREATED, "model1");
+
+		Model model = mFactory.createModel();
 		assertNotNull(model);
 		assertEquals(BasicModel.class, model.getClass());
 
+		dump("testCreateModel", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testCreateManagedModel()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
+		sLog.setLevel(Level.OFF);
 
-		ManagedModel model = mFactory.createManagedModel("model1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.MODEL_FACTORY_MODEL_CREATED, "model1");
+
+		ManagedModel model = mFactory.createManagedModel();
 		assertNotNull(model);
 		assertEquals(BasicModel.class, model.getClass());
 
+		dump("testCreateManagedModel", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 }

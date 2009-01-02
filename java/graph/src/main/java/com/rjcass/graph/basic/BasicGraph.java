@@ -23,6 +23,7 @@ public class BasicGraph implements ManagedGraph
 	private static Log sLog = LogFactory.getLog(BasicGraph.class);
 
 	private String mId;
+	private String mName;
 	private ManagedModel mModel;
 	private Set<ManagedNode> mNodes;
 	private Set<ManagedArc> mArcs;
@@ -42,8 +43,17 @@ public class BasicGraph implements ManagedGraph
 
 	public String getId()
 	{
-		validate();
 		return mId;
+	}
+
+	public void setName(String name)
+	{
+		mName = name;
+	}
+
+	public String getName()
+	{
+		return mName;
 	}
 
 	public Model getModel()

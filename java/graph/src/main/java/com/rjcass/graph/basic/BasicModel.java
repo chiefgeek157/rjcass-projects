@@ -28,6 +28,7 @@ public class BasicModel implements ManagedModel
 	private static Log sLog = LogFactory.getLog(BasicModel.class);
 
 	private String mId;
+	private String mName;
 	private ManagedEntityFactory mEntityFactory;
 	private Set<ManagedGraph> mGraphs;
 	private Set<ManagedNode> mNodes;
@@ -54,16 +55,25 @@ public class BasicModel implements ManagedModel
 
 	public String getId()
 	{
-		validate();
 		return mId;
 	}
 
-	public Node addNode(String id)
+	public String getName()
+	{
+		return mName;
+	}
+
+	public void setName(String name)
+	{
+		mName = name;
+	}
+
+	public Node addNode()
 	{
 		validate();
 
-		ManagedGraph graph = createManagedGraph("FOR_NODE_" + id);
-		ManagedNode node = mEntityFactory.createNode(id);
+		ManagedGraph graph = createManagedGraph();
+		ManagedNode node = mEntityFactory.createNode();
 
 		graph.addManagedNode(node);
 
@@ -139,9 +149,9 @@ public class BasicModel implements ManagedModel
 		mId = id;
 	}
 
-	public ManagedArc addManagedArc(String id, ManagedNode node1, ManagedNode node2, boolean directed)
+	public ManagedArc addManagedArc(ManagedNode node1, ManagedNode node2, boolean directed)
 	{
-		ManagedArc arc = mEntityFactory.createArc(id);
+		ManagedArc arc = mEntityFactory.createArc();
 		arc.setManagedNodes(node1, node2);
 		if (directed)
 			arc.setDirection(node1, Direction.OUTBOUND);
@@ -217,7 +227,7 @@ public class BasicModel implements ManagedModel
 		if (split)
 		{
 			ManagedGraph sourceGraph = node1.getManagedGraph();
-			ManagedGraph targetGraph = createManagedGraph("SPLIT_" + sourceGraph);
+			ManagedGraph targetGraph = createManagedGraph();
 
 			Set<ManagedArc> arcsToMove = new HashSet<ManagedArc>();
 			for (ManagedNode nodeToMove : nodesToMove)
@@ -314,9 +324,9 @@ public class BasicModel implements ManagedModel
 			listener.graphSplit(this, source, target);
 	}
 
-	private ManagedGraph createManagedGraph(String id)
+	private ManagedGraph createManagedGraph()
 	{
-		ManagedGraph graph = mEntityFactory.createGraph(id);
+		ManagedGraph graph = mEntityFactory.createGraph();
 
 		graph.setManagedModel(this);
 

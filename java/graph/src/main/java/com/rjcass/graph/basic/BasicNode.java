@@ -24,6 +24,8 @@ public class BasicNode implements ManagedNode
 	private static Log sLog = LogFactory.getLog(BasicNode.class);
 
 	private String mId;
+	private String mName;
+
 	private ManagedGraph mGraph;
 	private Set<ManagedArc> mArcs;
 	private Set<NodeListener> mListeners;
@@ -41,8 +43,17 @@ public class BasicNode implements ManagedNode
 
 	public String getId()
 	{
-		validate();
 		return mId;
+	}
+
+	public void setName(String name)
+	{
+		mName = name;
+	}
+
+	public String getName()
+	{
+		return mName;
 	}
 
 	public Graph getGraph()
@@ -51,12 +62,12 @@ public class BasicNode implements ManagedNode
 		return getManagedGraph();
 	}
 
-	public Arc joinTo(String arcId, Node node)
+	public Arc joinTo(Node node)
 	{
-		return joinTo(arcId, node, false);
+		return joinTo(node, false);
 	}
 
-	public Arc joinTo(String arcId, Node node, boolean directed)
+	public Arc joinTo(Node node, boolean directed)
 	{
 		validate();
 
@@ -70,7 +81,7 @@ public class BasicNode implements ManagedNode
 			throw new IllegalArgumentException("Already connected to given Node");
 
 		// Delegate Arc creation to the Model
-		ManagedArc arc = getManagedGraph().getManagedModel().addManagedArc(arcId, this, (ManagedNode)node, directed);
+		ManagedArc arc = getManagedGraph().getManagedModel().addManagedArc(this, (ManagedNode)node, directed);
 
 		return arc;
 	}

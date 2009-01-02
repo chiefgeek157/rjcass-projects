@@ -2,17 +2,13 @@ package com.rjcass.graph;
 
 import java.util.Set;
 
-public interface Node
+public interface Node extends ModelEntity
 {
-	boolean isValid();
-
-	String getId();
-
 	Graph getGraph();
 
-	Arc joinTo(String arcId, Node node);
+	Arc joinTo(Node node);
 
-	Arc joinTo(String arcId, Node node, boolean directed);
+	Arc joinTo(Node node, boolean directed);
 
 	void disconnectFrom(Node node);
 

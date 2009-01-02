@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.ArcListener;
 import com.rjcass.graph.Graph;
@@ -35,9 +33,9 @@ public class EventTraceListener implements ModelFactoryListener, ManagedEntityFa
 		mEvents = new ArrayList<ListenerEvent>();
 	}
 
-	public void addEvent(ListenerEvent event)
+	public void addEvent(ListenerEventType type, Object... objs)
 	{
-		mEvents.add(event);
+		mEvents.add(new ListenerEvent(type, objs));
 	}
 
 	public List<ListenerEvent> getEvents()
@@ -70,7 +68,7 @@ public class EventTraceListener implements ModelFactoryListener, ManagedEntityFa
 				Iterator<ListenerEvent> iter2 = listener.mEvents.iterator();
 				while (iter1.hasNext())
 				{
-					if (iter1.next() != iter2.next())
+					if (!iter1.next().equals(iter2.next()))
 					{
 						result = false;
 						break;
@@ -89,154 +87,148 @@ public class EventTraceListener implements ModelFactoryListener, ManagedEntityFa
 			pw.println(event);
 	}
 
-	public void dump(Log log)
-	{
-		for (ListenerEvent event : mEvents)
-			log.debug(event);
-	}
-
 	public void modelCreated(Model model)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MODEL_FACTORY_MODEL_CREATED);
+			addEvent(ListenerEventType.MODEL_FACTORY_MODEL_CREATED, model);
 		model.addListener(this);
 	}
 
 	public void graphCreated(ManagedGraph graph)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MANAGED_ENTITY_FACTORY_GRAPH_CREATED);
+			addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_GRAPH_CREATED, graph);
 		graph.addListener(this);
 	}
 
 	public void nodeCreated(ManagedNode node)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MANAGED_ENTITY_FACTORY_NODE_CREATED);
+			addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_NODE_CREATED, node);
 		node.addListener(this);
 	}
 
 	public void arcCreated(ManagedArc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MANAGED_ENTITY_FACTORY_ARC_CREATED);
+			addEvent(ListenerEventType.MANAGED_ENTITY_FACTORY_ARC_CREATED, arc);
 		arc.addListener(this);
 	}
 
 	public void graphAdded(Model model, Graph graph)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MODEL_GRAPH_ADDED);
+			addEvent(ListenerEventType.MODEL_GRAPH_ADDED, model, graph);
 	}
 
 	public void graphRemoved(Model model, Graph graph)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MODEL_GRAPH_REMOVED);
+			addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, model, graph);
 	}
 
 	public void graphSplit(Model model, Graph source, Graph target)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MODEL_GRAPH_SPLIT);
+			addEvent(ListenerEventType.MODEL_GRAPH_SPLIT, model, source, target);
 	}
 
 	public void graphsMerged(Model model, Graph source, Graph target)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.MODEL_GRAPHS_MERGED);
+			addEvent(ListenerEventType.MODEL_GRAPHS_MERGED, model, source, target);
 	}
 
 	public void modelSet(Graph graph, Model oldModel, Model newModel)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.GRAPH_MODEL_SET);
+			addEvent(ListenerEventType.GRAPH_MODEL_SET, graph, oldModel, newModel);
 	}
 
 	public void nodeAdded(Graph graph, Node node)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.GRAPH_NODE_ADDED);
+			addEvent(ListenerEventType.GRAPH_NODE_ADDED, graph, node);
 	}
 
 	public void nodeRemoved(Graph graph, Node node)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.GRAPH_NODE_REMOVED);
+			addEvent(ListenerEventType.GRAPH_NODE_REMOVED, graph, node);
 	}
 
 	public void arcAdded(Graph graph, Arc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.GRAPH_ARC_ADDED);
+			addEvent(ListenerEventType.GRAPH_ARC_ADDED, graph, arc);
 	}
 
 	public void arcRemoved(Graph graph, Arc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.GRAPH_ARC_REMOVED);
+			addEvent(ListenerEventType.GRAPH_ARC_REMOVED, graph, arc);
 	}
 
 	public void removed(Graph graph)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.GRAPH_REMOVED);
+			addEvent(ListenerEventType.GRAPH_REMOVED, graph);
 		graph.removeListener(this);
 	}
 
 	public void graphSet(Node node, Graph oldGraph, Graph newGraph)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.NODE_GRAPH_SET);
+			addEvent(ListenerEventType.NODE_GRAPH_SET, node, oldGraph, newGraph);
 	}
 
 	public void arcAdded(Node node, Arc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.NODE_ARC_ADDED);
+			addEvent(ListenerEventType.NODE_ARC_ADDED, node, arc);
 	}
 
 	public void arcRemoved(Node node, Arc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.NODE_ARC_REMOVED);
+			addEvent(ListenerEventType.NODE_ARC_REMOVED, node, arc);
 	}
 
 	public void removed(Node node)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.NODE_REMOVED);
+			addEvent(ListenerEventType.NODE_REMOVED, node);
 		node.removeListener(this);
 	}
 
 	public void graphSet(Arc arc, Graph oldGraph, Graph newGraph)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.ARC_GRAPH_SET);
+			addEvent(ListenerEventType.ARC_GRAPH_SET, arc, oldGraph, newGraph);
 	}
 
 	public void nodesSet(Arc arc, Node oldStartNode, Node oldEndNode, Node newStartNode, Node newEndNode)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.ARC_NODES_SET);
+			addEvent(ListenerEventType.ARC_NODES_SET, arc, oldStartNode, oldEndNode, newStartNode, newEndNode);
 	}
 
 	public void directedSet(Arc arc, boolean directed)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.ARC_DIRECTED_SET);
+			addEvent(ListenerEventType.ARC_DIRECTED_SET, arc, directed);
 	}
 
 	public void reversed(Arc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.ARC_REVERSED);
+			addEvent(ListenerEventType.ARC_REVERSED, arc);
 	}
 
 	public void removed(Arc arc)
 	{
 		if (!mPaused)
-			mEvents.add(ListenerEvent.ARC_REMOVED);
+			addEvent(ListenerEventType.ARC_REMOVED, arc);
 		arc.removeListener(this);
 	}
 }

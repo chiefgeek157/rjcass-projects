@@ -2,13 +2,9 @@ package com.rjcass.graph;
 
 import java.util.Set;
 
-public interface Graph
+public interface Graph extends ModelEntity
 {
 	void remove();
-
-	boolean isValid();
-
-	String getId();
 
 	Model getModel();
 

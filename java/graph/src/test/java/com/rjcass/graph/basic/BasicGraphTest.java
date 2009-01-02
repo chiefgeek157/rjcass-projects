@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 
 import java.util.Set;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -17,12 +19,14 @@ import org.junit.Test;
 import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
 import com.rjcass.graph.listener.EventTraceListener;
-import com.rjcass.graph.listener.ListenerEvent;
+import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedModelFactory;
 
-public class BasicGraphTest
+public class BasicGraphTest extends BasicTestBase
 {
+	private static final Logger sLog = Logger.getLogger(BasicGraphTest.class);
+
 	private ManagedModel mModel;
 	private EventTraceListener mListener;
 
@@ -43,7 +47,7 @@ public class BasicGraphTest
 		ManagedModelFactory modelFactory = new BasicManagedModelFactory();
 		modelFactory.addModelFactoryListener(mListener);
 		modelFactory.getEntityFactory().addListener(mListener);
-		mModel = modelFactory.createManagedModel("model1");
+		mModel = modelFactory.createManagedModel();
 		mModel.addListener(mListener);
 	}
 
@@ -54,15 +58,17 @@ public class BasicGraphTest
 	@Test
 	public void testRemoveWithOneNode()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
+		sLog.setLevel(Level.OFF);
 
-		Node node1 = mModel.addNode("node1");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", "graph1", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph1", "node1");
+		events.addEvent(ListenerEventType.NODE_REMOVED, "node1");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph1", "model1", null);
+		events.addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, "model1", "graph1");
+		events.addEvent(ListenerEventType.GRAPH_REMOVED, "graph1");
+
+		Node node1 = mModel.addNode();
 		Graph node1Graph = node1.getGraph();
 
 		mListener.resume();
@@ -75,22 +81,25 @@ public class BasicGraphTest
 		Set<? extends Node> modelNodes = mModel.getNodes();
 		assertEquals(0, modelNodes.size());
 
+		dump("testRemoveWithOneNode", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 
 	@Test
 	public void testRemoveWithTwoNodes()
 	{
-		EventTraceListener events = new EventTraceListener();
-		events.addEvent(ListenerEvent.NODE_GRAPH_SET);
-		events.addEvent(ListenerEvent.GRAPH_NODE_REMOVED);
-		events.addEvent(ListenerEvent.NODE_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_MODEL_SET);
-		events.addEvent(ListenerEvent.MODEL_GRAPH_REMOVED);
-		events.addEvent(ListenerEvent.GRAPH_REMOVED);
+		sLog.setLevel(Level.DEBUG);
 
-		Node node1 = mModel.addNode("node1");
-		Node node2 = mModel.addNode("node2");
+		EventTraceListener events = new EventTraceListener();
+		events.addEvent(ListenerEventType.NODE_GRAPH_SET, "node1", "graph1", null);
+		events.addEvent(ListenerEventType.GRAPH_NODE_REMOVED, "graph1", "node1");
+		events.addEvent(ListenerEventType.NODE_REMOVED, "node1");
+		events.addEvent(ListenerEventType.GRAPH_MODEL_SET, "graph1", "model1", null);
+		events.addEvent(ListenerEventType.MODEL_GRAPH_REMOVED, "model1", "graph1");
+		events.addEvent(ListenerEventType.GRAPH_REMOVED, "graph1");
+
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
 
 		Graph node1Graph = node1.getGraph();
 
@@ -114,6 +123,7 @@ public class BasicGraphTest
 		assertEquals(1, node2GraphNodes.size());
 		assertEquals(node2, node2GraphNodes.iterator().next());
 
+		dump("testRemoveWithTwoNodes", mListener, sLog);
 		assertEquals(events, mListener);
 	}
 

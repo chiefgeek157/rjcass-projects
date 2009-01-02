@@ -1,28 +1,66 @@
 package com.rjcass.graph.listener;
 
-public enum ListenerEvent
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.rjcass.graph.ModelEntity;
+
+public class ListenerEvent
 {
-	MODEL_FACTORY_MODEL_CREATED,
-	MANAGED_ENTITY_FACTORY_GRAPH_CREATED,
-	MANAGED_ENTITY_FACTORY_NODE_CREATED,
-	MANAGED_ENTITY_FACTORY_ARC_CREATED,
-	MODEL_GRAPH_ADDED,
-	MODEL_GRAPH_REMOVED,
-	MODEL_GRAPHS_MERGED,
-	MODEL_GRAPH_SPLIT,
-	GRAPH_MODEL_SET,
-	GRAPH_NODE_ADDED,
-	GRAPH_NODE_REMOVED,
-	GRAPH_ARC_ADDED,
-	GRAPH_ARC_REMOVED,
-	GRAPH_REMOVED,
-	NODE_GRAPH_SET,
-	NODE_ARC_ADDED,
-	NODE_ARC_REMOVED,
-	NODE_REMOVED,
-	ARC_GRAPH_SET,
-	ARC_NODES_SET,
-	ARC_DIRECTED_SET,
-	ARC_REVERSED,
-	ARC_REMOVED
+	private ListenerEventType mType;
+	private List<String> mNames;
+
+	public ListenerEvent(ListenerEventType type, Object... objs)
+	{
+		mType = type;
+		mNames = new ArrayList<String>();
+		for (Object obj : objs)
+		{
+			if (obj == null)
+				mNames.add("null");
+			else if (obj instanceof ModelEntity)
+				mNames.add(((ModelEntity)obj).getId());
+			else
+				mNames.add(obj.toString());
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		boolean result = false;
+		if (obj != null && obj instanceof ListenerEvent)
+		{
+			ListenerEvent other = (ListenerEvent)obj;
+			if (other.mType == mType && other.mNames.size() == mNames.size())
+			{
+				result = true;
+				Iterator<String> thisIter = mNames.iterator();
+				Iterator<String> otherIter = other.mNames.iterator();
+				while (thisIter.hasNext())
+				{
+					if (!thisIter.next().equals(otherIter.next()))
+					{
+						result = false;
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder builder = new StringBuilder("Event[");
+		builder.append(mType);
+		for (String name : mNames)
+		{
+			builder.append(",\"").append(name).append("\"");
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 }

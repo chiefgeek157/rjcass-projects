@@ -1,6 +1,6 @@
 package com.rjcass.graph;
 
-public interface Arc
+public interface Arc extends ModelEntity
 {
 	enum Direction
 	{
@@ -14,10 +14,6 @@ public interface Arc
 	void reverse();
 
 	void remove();
-
-	boolean isValid();
-
-	String getId();
 
 	Graph getGraph();
 
