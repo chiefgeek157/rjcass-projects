@@ -16,6 +16,10 @@ import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedEntityFactory;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
+import com.rjcass.graph.managed.basic.BasicArc;
+import com.rjcass.graph.managed.basic.BasicGraph;
+import com.rjcass.graph.managed.basic.BasicManagedEntityFactory;
+import com.rjcass.graph.managed.basic.BasicNode;
 
 public class BasicManagedEntityFactoryTest extends BasicTestBase
 {

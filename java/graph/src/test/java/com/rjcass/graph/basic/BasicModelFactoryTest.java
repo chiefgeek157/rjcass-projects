@@ -15,6 +15,8 @@ import com.rjcass.graph.Model;
 import com.rjcass.graph.listener.EventTraceListener;
 import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
+import com.rjcass.graph.managed.basic.BasicManagedModelFactory;
+import com.rjcass.graph.managed.basic.BasicModel;
 
 public class BasicModelFactoryTest extends BasicTestBase
 {

@@ -1,4 +1,4 @@
-package com.rjcass.graph.generic;
+package com.rjcass.graph.managed.generic;
 
 import com.rjcass.graph.GraphException;
 import com.rjcass.graph.managed.AbstractManagedModelFactory;
