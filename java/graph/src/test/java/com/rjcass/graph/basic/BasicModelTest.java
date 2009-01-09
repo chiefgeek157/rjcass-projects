@@ -1,8 +1,8 @@
 package com.rjcass.graph.basic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -13,12 +13,14 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.rjcass.graph.Arc;
+import com.rjcass.graph.ArcFilter;
 import com.rjcass.graph.Graph;
+import com.rjcass.graph.GraphFilter;
 import com.rjcass.graph.Node;
+import com.rjcass.graph.NodeFilter;
 import com.rjcass.graph.listener.EventTraceListener;
 import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
@@ -156,24 +158,87 @@ public class BasicModelTest extends BasicTestBase
 		assertEquals(events, mListener);
 	}
 
-	@Ignore("Not yet implemented")
 	@Test
 	public void testGetGraphsGraphFilter()
 	{
-		fail("Not yet implemented");
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+
+		Set<? extends Graph> allGraphs = mModel.getGraphs(new GraphFilter()
+		{
+			public boolean passes(Graph graph)
+			{
+				return true;
+			}
+		});
+		assertTrue(allGraphs.contains(node1.getGraph()));
+		assertTrue(allGraphs.contains(node2.getGraph()));
+
+		Set<? extends Graph> noGraphs = mModel.getGraphs(new GraphFilter()
+		{
+			public boolean passes(Graph graph)
+			{
+				return false;
+			}
+		});
+		assertFalse(noGraphs.contains(node1.getGraph()));
+		assertFalse(noGraphs.contains(node2.getGraph()));
 	}
 
-	@Ignore("Not yet implemented")
 	@Test
 	public void testGetNodesNodeFilter()
 	{
-		fail("Not yet implemented");
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+
+		Set<? extends Node> allNodes = mModel.getNodes(new NodeFilter()
+		{
+			public boolean passes(Node node)
+			{
+				return true;
+			}
+		});
+		assertTrue(allNodes.contains(node1));
+		assertTrue(allNodes.contains(node2));
+
+		Set<? extends Node> noNodes = mModel.getNodes(new NodeFilter()
+		{
+			public boolean passes(Node node)
+			{
+				return false;
+			}
+		});
+		assertFalse(noNodes.contains(node1.getGraph()));
+		assertFalse(noNodes.contains(node2.getGraph()));
 	}
 
-	@Ignore("Not yet implemented")
 	@Test
 	public void testGetArcsArcFilter()
 	{
-		fail("Not yet implemented");
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Arc arc1 = node1.joinTo(node2);
+		Arc arc2 = node2.joinTo(node3);
+
+		Set<? extends Arc> allArcs = mModel.getArcs(new ArcFilter()
+		{
+			public boolean passes(Arc arc)
+			{
+				return true;
+			}
+		});
+		assertTrue(allArcs.contains(arc1));
+		assertTrue(allArcs.contains(arc2));
+
+		Set<? extends Arc> noArcs = mModel.getArcs(new ArcFilter()
+		{
+			public boolean passes(Arc arc)
+			{
+				return false;
+			}
+		});
+		assertFalse(noArcs.contains(arc1));
+		assertFalse(noArcs.contains(arc2));
 	}
 }

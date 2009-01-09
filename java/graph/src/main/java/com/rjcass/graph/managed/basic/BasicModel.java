@@ -153,8 +153,6 @@ public class BasicModel implements ManagedModel
 	{
 		ManagedArc arc = mEntityFactory.createArc();
 		arc.setManagedNodes(node1, node2);
-		if (directed)
-			arc.setDirection(node1, Direction.OUTBOUND);
 
 		// Combine graphs, if needed
 		ManagedGraph sourceGraph = node1.getManagedGraph();
@@ -185,6 +183,9 @@ public class BasicModel implements ManagedModel
 
 		targetGraph.addManagedArc(arc);
 
+		if (directed)
+			arc.setDirection(node1, Direction.OUTBOUND);
+		
 		return arc;
 	}
 

@@ -69,7 +69,6 @@ public class BasicArc implements ManagedArc
 		return mId;
 	}
 
-
 	public void setName(String name)
 	{
 		mName = name;
@@ -118,15 +117,16 @@ public class BasicArc implements ManagedArc
 	public Direction getDirection(Node node)
 	{
 		validate();
+		if (mStartNode != node && mEndNode != node)
+			throw new IllegalArgumentException("Node is not part of this Arc");
+
 		Direction direction = Direction.UNDIRECTED;
 		if (mDirected)
 		{
 			if (node == mStartNode)
 				direction = Direction.OUTBOUND;
-			else if (node == mEndNode)
-				direction = Direction.INBOUND;
 			else
-				throw new IllegalArgumentException("Node is not part of this Arc");
+				direction = Direction.INBOUND;
 		}
 		return direction;
 	}

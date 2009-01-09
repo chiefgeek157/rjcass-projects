@@ -2,6 +2,7 @@ package com.rjcass.graph.basic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
@@ -14,8 +15,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.rjcass.graph.AdjacencyFilter;
+import com.rjcass.graph.Arc;
+import com.rjcass.graph.ArcFilter;
 import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
+import com.rjcass.graph.NodeFilter;
 import com.rjcass.graph.listener.EventTraceListener;
 import com.rjcass.graph.listener.ListenerEventType;
 import com.rjcass.graph.managed.ManagedModel;
@@ -369,7 +374,7 @@ public class BasicNodeTest extends BasicTestBase
 	@Test
 	public void testRemovePartOfANetwork()
 	{
-		sLog.setLevel(Level.DEBUG);
+		sLog.setLevel(Level.OFF);
 
 		// Network
 		//
@@ -397,7 +402,6 @@ public class BasicNodeTest extends BasicTestBase
 
 		assertEquals(1, mModel.getGraphs().size());
 
-		mListener.resume();
 		node5.remove();
 		assertEquals(6, mModel.getGraphs().size());
 	}
@@ -456,37 +460,195 @@ public class BasicNodeTest extends BasicTestBase
 		assertFalse(node1.isAdjacentTo(node3));
 	}
 
-	// @Test
-	// public void testGetAdjacentArc()
-	// {
-	// ManagedEntityFactory factory = new ManagedEntityFactory();
-	// ManagedModel basicModel = factory.createModel();
-	// Node node1 = basicModel.addNode();
-	// Node node2 = basicModel.addNode();
-	// Node node3 = basicModel.addNode();
-	// Node node4 = basicModel.addNode();
-	// Arc arc1 = node1.joinTo(node2);
-	// node2.joinTo(node3);
-	// node3.joinTo(node4);
-	// Arc arc4 = node4.joinTo(node1);
-	// assertTrue(node1.getConnectingArc(node2) == arc1);
-	// assertTrue(node1.getConnectingArc(node4) == arc4);
-	// }
-	//
-	// @Test
-	// public void testGetAdjacentArcWithFilter()
-	// {
-	// ManagedEntityFactory factory = new ManagedEntityFactory();
-	// ManagedModel basicModel = factory.createModel();
-	// Node node1 = basicModel.addNode();
-	// Node node2 = basicModel.addNode();
-	// Node node3 = basicModel.addNode();
-	// Node node4 = basicModel.addNode();
-	// Arc arc1 = node1.joinTo(node2);
-	// node2.joinTo(node3);
-	// node3.joinTo(node4);
-	// Arc arc4 = node4.joinTo(node1);
-	// assertTrue(node1.getConnectingArc(node2) == arc1);
-	// assertTrue(node1.getConnectingArc(node4) == arc4);
-	// }
+	@Test
+	public void testGetConnectingArc()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Arc arc1 = node1.joinTo(node2);
+
+		assertEquals(arc1, node1.getConnectingArc(node2));
+		assertNull(node1.getConnectingArc(node3));
+	}
+
+	@Test
+	public void testGetArcsWithArcFilter()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Arc arc1 = node1.joinTo(node2);
+		Arc arc2 = node1.joinTo(node3);
+
+		Set<? extends Arc> allArcs = node1.getArcs(new ArcFilter()
+		{
+			public boolean passes(Arc arc)
+			{
+				return true;
+			}
+		});
+		assertTrue(allArcs.contains(arc1));
+		assertTrue(allArcs.contains(arc2));
+
+		Set<? extends Arc> noArcs = node1.getArcs(new ArcFilter()
+		{
+			public boolean passes(Arc arc)
+			{
+				return false;
+			}
+		});
+		assertFalse(noArcs.contains(arc1));
+		assertFalse(noArcs.contains(arc2));
+	}
+
+	@Test
+	public void testGetArcsWithNodeFilter()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Arc arc1 = node1.joinTo(node2);
+		Arc arc2 = node1.joinTo(node3);
+
+		Set<? extends Arc> allArcs = node1.getArcs(new NodeFilter()
+		{
+			public boolean passes(Node node)
+			{
+				return true;
+			}
+		});
+		assertTrue(allArcs.contains(arc1));
+		assertTrue(allArcs.contains(arc2));
+
+		Set<? extends Arc> noArcs = node1.getArcs(new NodeFilter()
+		{
+			public boolean passes(Node node)
+			{
+				return false;
+			}
+		});
+		assertFalse(noArcs.contains(arc1));
+		assertFalse(noArcs.contains(arc2));
+	}
+
+	@Test
+	public void testGetArcsWithAdjacencyFilter()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		Arc arc1 = node1.joinTo(node2);
+		Arc arc2 = node1.joinTo(node3);
+
+		Set<? extends Arc> allArcs = node1.getArcs(new AdjacencyFilter()
+		{
+			public boolean passes(Arc arc, Node node)
+			{
+				return true;
+			}
+		});
+		assertTrue(allArcs.contains(arc1));
+		assertTrue(allArcs.contains(arc2));
+
+		Set<? extends Arc> noArcs = node1.getArcs(new AdjacencyFilter()
+		{
+			public boolean passes(Arc arc, Node node)
+			{
+				return false;
+			}
+		});
+		assertFalse(noArcs.contains(arc1));
+		assertFalse(noArcs.contains(arc2));
+	}
+
+	@Test
+	public void testGetNodesWithArcFilter()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		node1.joinTo(node2);
+		node1.joinTo(node3);
+
+		Set<? extends Node> allNodes = node1.getAdjacentNodes(new ArcFilter()
+		{
+			public boolean passes(Arc arc)
+			{
+				return true;
+			}
+		});
+		assertTrue(allNodes.contains(node2));
+		assertTrue(allNodes.contains(node3));
+
+		Set<? extends Node> noNodes = node1.getAdjacentNodes(new ArcFilter()
+		{
+			public boolean passes(Arc arc)
+			{
+				return false;
+			}
+		});
+		assertFalse(noNodes.contains(node2));
+		assertFalse(noNodes.contains(node3));
+	}
+
+	@Test
+	public void testGetNodesWithNodeFilter()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		node1.joinTo(node2);
+		node1.joinTo(node3);
+
+		Set<? extends Node> allNodes = node1.getAdjacentNodes(new NodeFilter()
+		{
+			public boolean passes(Node node)
+			{
+				return true;
+			}
+		});
+		assertTrue(allNodes.contains(node2));
+		assertTrue(allNodes.contains(node3));
+
+		Set<? extends Node> noNodes = node1.getAdjacentNodes(new NodeFilter()
+		{
+			public boolean passes(Node node)
+			{
+				return false;
+			}
+		});
+		assertFalse(noNodes.contains(node2));
+		assertFalse(noNodes.contains(node3));
+	}
+
+	@Test
+	public void testGetNodesWithAdjacencyFilter()
+	{
+		Node node1 = mModel.addNode();
+		Node node2 = mModel.addNode();
+		Node node3 = mModel.addNode();
+		node1.joinTo(node2);
+		node1.joinTo(node3);
+
+		Set<? extends Node> allNodes = node1.getAdjacentNodes(new AdjacencyFilter()
+		{
+			public boolean passes(Arc arc, Node node)
+			{
+				return true;
+			}
+		});
+		assertTrue(allNodes.contains(node2));
+		assertTrue(allNodes.contains(node3));
+
+		Set<? extends Node> noNodes = node1.getAdjacentNodes(new AdjacencyFilter()
+		{
+			public boolean passes(Arc arc, Node node)
+			{
+				return false;
+			}
+		});
+		assertFalse(noNodes.contains(node2));
+		assertFalse(noNodes.contains(node3));
+	}
 }
