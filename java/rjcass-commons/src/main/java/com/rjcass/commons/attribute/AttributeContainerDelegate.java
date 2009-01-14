@@ -1,4 +1,4 @@
-package com.rjcass.commons;
+package com.rjcass.commons.attribute;
 
 import java.util.HashMap;
 import java.util.Map;

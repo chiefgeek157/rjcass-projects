@@ -1,4 +1,4 @@
-package com.rjcass.commons;
+package com.rjcass.commons.attribute;
 
 public abstract class AbstractAttributeContainer implements AttributeContainer
 {

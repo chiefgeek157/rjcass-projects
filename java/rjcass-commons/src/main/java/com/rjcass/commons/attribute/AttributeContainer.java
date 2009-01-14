@@ -1,4 +1,4 @@
-package com.rjcass.commons;
+package com.rjcass.commons.attribute;
 
 public interface AttributeContainer
 {
