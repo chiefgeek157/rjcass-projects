@@ -1,6 +1,8 @@
 package com.rjcass.graph;
 
-public interface ModelEntity
+import com.rjcass.commons.attribute.AttributeContainer;
+
+public interface ModelEntity extends AttributeContainer
 {
 	String getId();
 

@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rjcass.commons.attribute.AbstractAttributeContainer;
 import com.rjcass.graph.ArcListener;
 import com.rjcass.graph.Graph;
 import com.rjcass.graph.Node;
@@ -13,7 +14,7 @@ import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicArc implements ManagedArc
+public class BasicArc extends AbstractAttributeContainer implements ManagedArc
 {
 	private static Log sLog = LogFactory.getLog(BasicArc.class);
 

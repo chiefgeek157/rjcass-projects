@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rjcass.commons.attribute.AbstractAttributeContainer;
 import com.rjcass.graph.AdjacencyFilter;
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.ArcFilter;
@@ -19,7 +20,7 @@ import com.rjcass.graph.managed.ManagedArc;
 import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicNode implements ManagedNode
+public class BasicNode extends AbstractAttributeContainer implements ManagedNode
 {
 	private static Log sLog = LogFactory.getLog(BasicNode.class);
 

@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rjcass.commons.attribute.AbstractAttributeContainer;
 import com.rjcass.graph.Arc;
 import com.rjcass.graph.ArcFilter;
 import com.rjcass.graph.Graph;
@@ -23,7 +24,7 @@ import com.rjcass.graph.managed.ManagedGraph;
 import com.rjcass.graph.managed.ManagedModel;
 import com.rjcass.graph.managed.ManagedNode;
 
-public class BasicModel implements ManagedModel
+public class BasicModel extends AbstractAttributeContainer implements ManagedModel
 {
 	private static Log sLog = LogFactory.getLog(BasicModel.class);
 
@@ -185,7 +186,7 @@ public class BasicModel implements ManagedModel
 
 		if (directed)
 			arc.setDirection(node1, Direction.OUTBOUND);
-		
+
 		return arc;
 	}
 
