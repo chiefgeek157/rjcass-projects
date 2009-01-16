@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.rjcass.graph.ModelEntity;
+import com.rjcass.graph.GEntity;
 
 public class ListenerEvent
 {
@@ -19,8 +19,8 @@ public class ListenerEvent
 		{
 			if (obj == null)
 				mNames.add("null");
-			else if (obj instanceof ModelEntity)
-				mNames.add(((ModelEntity)obj).getId());
+			else if (obj instanceof GEntity)
+				mNames.add(((GEntity)obj).getId());
 			else
 				mNames.add(obj.toString());
 		}
