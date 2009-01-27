@@ -1,11 +1,11 @@
 package com.rjcass.depends2.basic;
 
-import com.rjcass.depends2.DependsException;
-import com.rjcass.depends2.Entity;
-import com.rjcass.depends2.EntityFactory;
-import com.rjcass.depends2.EntityType;
-import com.rjcass.depends2.spi.SPIEntity;
-import com.rjcass.depends2.spi.SPIEntityType;
+import com.rjcass.depends.DependsException;
+import com.rjcass.depends.Entity;
+import com.rjcass.depends.EntityFactory;
+import com.rjcass.depends.EntityType;
+import com.rjcass.depends.spi.SPIEntity;
+import com.rjcass.depends.spi.SPIEntityType;
 
 public class GenericEntityFactory implements EntityFactory
 {

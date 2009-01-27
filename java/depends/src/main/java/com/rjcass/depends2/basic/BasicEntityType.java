@@ -3,8 +3,8 @@ package com.rjcass.depends2.basic;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.rjcass.depends2.EntityType;
-import com.rjcass.depends2.spi.SPIEntityType;
+import com.rjcass.depends.EntityType;
+import com.rjcass.depends.spi.SPIEntityType;
 
 public class BasicEntityType implements SPIEntityType
 {

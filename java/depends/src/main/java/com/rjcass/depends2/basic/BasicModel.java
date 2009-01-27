@@ -1,8 +1,9 @@
 package com.rjcass.depends2.basic;
 
-import com.rjcass.depends2.Layer;
-import com.rjcass.depends2.spi.SPILayer;
-import com.rjcass.depends2.spi.SPIModel;
+import com.rjcass.depends.Layer;
+import com.rjcass.depends.spi.SPILayer;
+import com.rjcass.depends.spi.SPIModel;
+
 import java.util.ArrayList;
 import java.util.List;
 

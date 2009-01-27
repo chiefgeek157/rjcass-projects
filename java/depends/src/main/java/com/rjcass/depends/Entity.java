@@ -1,152 +1,41 @@
 package com.rjcass.depends;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-public abstract class Entity implements Comparable<Entity>
+public interface Entity
 {
-    private static Log sLog = LogFactory.getLog(Entity.class);
+	EntityType getType();
 
-    private String mName;
-    private Set<Relationship> mSourceRelationships;
-    private Set<Relationship> mTargetRelationships;
-    private Entity mParent;
-    private Set<Entity> mChildren;
+	Set<? extends Dependency> getDependencies();
 
-    public Entity getParent()
-    {
-        return mParent;
-    }
+	Set<? extends Dependency> getDependents();
 
-    public <T extends Entity> T getParent(Class<T> type)
-    {
-        return type.cast(mParent);
-    }
+	Set<? extends Entity> getDependencyEntities();
 
-    public Set<Entity> getChildren()
-    {
-        return Collections.unmodifiableSet(mChildren);
-    }
+	Set<? extends Entity> getDependentEntities();
 
-    public <T extends Entity> Set<T> getChildren(Class<T> type)
-    {
-        Set<T> results = new HashSet<T>();
-        for(Entity entity : mChildren)
-        {
-            if(type.isInstance(entity)) results.add(type.cast(entity));
-        }
-        return results;
-    }
+	boolean dependsOn(Entity entity);
 
-    public String getName()
-    {
-        if(mName == null)
-            throw new IllegalStateException(
-                    "Attempt to access Name before it has been set");
-        return mName;
-    }
+	boolean dependsOn(Entity entity, boolean transiency);
 
-    public void addSourceRelationship(Relationship rel)
-    {
-        if(rel == null)
-            throw new IllegalArgumentException("Relationship cannot be null");
-        if(!equals(rel.getSource()))
-            throw new IllegalArgumentException(
-                    "Attempt to add source relationship for which this object is not the source");
-        if(!mSourceRelationships.add(rel))
-            sLog.warn("Attempt to add same relationship twice: " + rel);
-    }
+	void setAbstraction(Entity entity);
 
-    public void addTargetRelationship(Relationship rel)
-    {
-        if(rel == null)
-            throw new IllegalArgumentException("Relationship cannot be null");
-        if(!equals(rel.getTarget()))
-            throw new IllegalArgumentException(
-                    "Attempt to add target relationship for which this object is not the target");
-        if(!mTargetRelationships.add(rel))
-            sLog.warn("Attempt to add same relationship twice: " + rel);
-    }
+	int getLevelOfAbstraction();
 
-    public Relationship getSourceRelationship(RelationshipFilter filter)
-    {
-        Relationship result = null;
-        Set<Relationship> rels = getSourceRelationships(filter);
-        if(!rels.isEmpty()) result = rels.iterator().next();
-        return result;
-    }
+	Entity getAbstraction();
 
-    public Relationship getTargetRelationship(RelationshipFilter filter)
-    {
-        Relationship result = null;
-        Set<Relationship> rels = getTargetRelationships(filter);
-        if(!rels.isEmpty()) result = rels.iterator().next();
-        return result;
-    }
+	Set<? extends Entity> getDetails();
 
-    public Set<Relationship> getSourceRelationships(RelationshipFilter filter)
-    {
-        return getRelationships(mSourceRelationships, filter);
-    }
+	boolean isDetailOf(Entity entity);
 
-    public Set<Relationship> getTargetRelationships(RelationshipFilter filter)
-    {
-        return getRelationships(mTargetRelationships, filter);
-    }
+	String getName();
 
-    public Set<Relationship> getSourceRelationships()
-    {
-        return Collections.unmodifiableSet(mSourceRelationships);
-    }
+	void setProperty(String name, String value);
 
-    public Set<Relationship> getTargetRelationships()
-    {
-        return Collections.unmodifiableSet(mTargetRelationships);
-    }
+	String getProperty(String name);
 
-    public int compareTo(Entity e)
-    {
-        return mName.compareTo(e.getName());
-    }
+	Map<String, String> getProperties();
 
-    protected Entity()
-    {
-        mSourceRelationships = new HashSet<Relationship>();
-        mTargetRelationships = new HashSet<Relationship>();
-    }
-
-    protected void setName(String name)
-    {
-        if(mName != null)
-            throw new IllegalStateException("Name already set and immutable");
-        if(name == null)
-            throw new IllegalArgumentException("Name cannot be null");
-        mName = name;
-    }
-
-    protected void setParent(Entity parent)
-    {
-        mParent = parent;
-    }
-
-    protected void addChild(Entity child)
-    {
-        if(mChildren == null) mChildren = new HashSet<Entity>();
-        mChildren.add(child);
-    }
-
-    private Set<Relationship> getRelationships(Set<Relationship> rels,
-            RelationshipFilter filter)
-    {
-        Set<Relationship> result = new HashSet<Relationship>();
-
-        for(Relationship rel : rels)
-            if(filter.passes(rel)) result.add(rel);
-
-        return result;
-    }
+	void removeProperty(String name);
 }

@@ -1,8 +1,16 @@
 package com.rjcass.depends;
 
-import java.io.OutputStream;
+import java.util.List;
 
 public interface Model
 {
-    void dump(OutputStream os);
+    String getName();
+
+    void setName(String name);
+
+    Layer getTopLayer();
+
+    List<? extends Layer> getLayers();
+
+    void addLayer(Layer layer);
 }

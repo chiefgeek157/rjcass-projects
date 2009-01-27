@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-	<bean id="buildableModelFactory" class="com.rjcass.depends.basic.BasicModelFactory"/>
-	<bean id="modelBuilder" class="com.rjcass.depends.builder.ModelBuilder" scope="prototype">
+	<bean id="buildableModelFactory" class="com.rjcass.depends.old.basic.BasicModelFactory"/>
+	<bean id="modelBuilder" class="com.rjcass.depends.old.builder.ModelBuilder" scope="prototype">
 		<property name="modelFactory" ref="buildableModelFactory"/>
 	</bean>
-	<bean id="entityTypeFactory" class="com.rjcass.depends2.basic.BasicEntityTypeFactory"/>
+	<bean id="entityTypeFactory" class="com.rjcass.depends.basic.BasicEntityTypeFactory"/>
 </beans>

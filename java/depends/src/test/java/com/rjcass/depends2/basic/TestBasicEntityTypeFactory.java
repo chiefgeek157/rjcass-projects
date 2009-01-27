@@ -9,8 +9,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.rjcass.depends2.EntityType;
-import com.rjcass.depends2.EntityTypeFactory;
+import com.rjcass.depends.EntityType;
+import com.rjcass.depends.EntityTypeFactory;
+import com.rjcass.depends.basic.BasicEntityTypeFactory;
 
 public class TestBasicEntityTypeFactory
 {

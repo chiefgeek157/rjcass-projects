@@ -3,8 +3,8 @@ package com.rjcass.depends2.basic;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.rjcass.depends2.EntityType;
-import com.rjcass.depends2.EntityTypeFactory;
+import com.rjcass.depends.EntityType;
+import com.rjcass.depends.EntityTypeFactory;
 
 public class BasicEntityTypeFactory implements EntityTypeFactory
 {
