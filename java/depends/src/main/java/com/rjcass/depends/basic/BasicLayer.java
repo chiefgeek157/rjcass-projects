@@ -1,4 +1,4 @@
-package com.rjcass.depends2.basic;
+package com.rjcass.depends.basic;
 
 import java.util.Collections;
 import java.util.HashSet;
