@@ -11,7 +11,7 @@ import com.rjcass.depends.spi.SPIEntity;
 import com.rjcass.depends.spi.SPILayer;
 import com.rjcass.depends.spi.SPIModel;
 
-public class BasicLayer extends GModel implements SPILayer
+public class BasicLayer implements SPILayer
 {
 	private String mName;
 	private SPILayer mParent;
