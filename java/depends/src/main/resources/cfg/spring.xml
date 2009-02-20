@@ -5,4 +5,5 @@
 		<property name="modelFactory" ref="buildableModelFactory"/>
 	</bean>
 	<bean id="entityTypeFactory" class="com.rjcass.depends.basic.BasicEntityTypeFactory"/>
+	<bean id="menuBuilder" class="com.rjcass.depends.jung.MenuBuilder"/>
 </beans>

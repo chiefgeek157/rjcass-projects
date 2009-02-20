@@ -1,92 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.rjcass.depends</groupId>
-    <artifactId>depends</artifactId>
-    <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>depends</name>
-    <url>http://code.google.com/p/rjcass-projects/</url>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.bcel</groupId>
-            <artifactId>bcel</artifactId>
-            <version>5.2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>1.7.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>2.5.6</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.15</version>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jms</artifactId>
-                    <groupId>javax.jms</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jmxri</artifactId>
-                    <groupId>com.sun.jmx</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jmxtools</artifactId>
-                    <groupId>com.sun.jdmk</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mail</artifactId>
-                    <groupId>javax.mail</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-        	<groupId>net.sf.jung</groupId>
-        	<artifactId>jung</artifactId>
-        	<version>2.0-beta1</version>
-        </dependency>
-        <dependency>
-        	<groupId>net.java.dev.appframework</groupId>
-        	<artifactId>appframework</artifactId>
-        	<version>1.03</version>
-        </dependency>
-    </dependencies>
-    <organization>
-    	<name>RJCass</name>
-    	<url>http://rjcass.com</url>
-    </organization>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.rjcass.depends</groupId>
+	<artifactId>depends</artifactId>
+	<packaging>jar</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>depends</name>
+	<url>http://code.google.com/p/rjcass-projects/</url>
+	<organization>
+		<name>RJCass</name>
+		<url>http://rjcass.com</url>
+	</organization>
+	<distributionManagement>
+		<repository>
+			<id>rjcass-projects-repo-release</id>
+			<name>RJCass Projects Release Repository</name>
+			<url>file://C:/Dev/SVNRepos/rjcass-projects/repos/release</url>
+		</repository>
+		<snapshotRepository>
+			<id>rjcass-projects-repo-snapshots</id>
+			<name>RJCass Projects Snapshots Repository</name>
+			<url>file://C:/Dev/SVNRepos/rjcass-projects/repos/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	<!--
+		<properties>
+		<springRichclient.version>1.0.0</springRichclient.version>
+		</properties> <repositories> <repository>
+		<id>springRichclientRepository</id> <name>Spring rich client
+		repository</name>
+		<url>http://spring-rich-c.sourceforge.net/maven2repository</url>
+		</repository> </repositories>
+	-->
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.bcel</groupId>
+			<artifactId>bcel</artifactId>
+			<version>5.2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.7.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>2.5.6</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.15</version>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>jms</artifactId>
+					<groupId>javax.jms</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jmxri</artifactId>
+					<groupId>com.sun.jmx</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jmxtools</artifactId>
+					<groupId>com.sun.jdmk</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>mail</artifactId>
+					<groupId>javax.mail</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.jung</groupId>
+			<artifactId>jung</artifactId>
+			<version>2.0-beta1</version>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.appframework</groupId>
+			<artifactId>appframework</artifactId>
+			<version>1.03</version>
+		</dependency>
+		<dependency>
+			<groupId>com.rjcass.commons</groupId>
+			<artifactId>rjcass-commons</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<!--
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-resources</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-core</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-binding</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-form</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-support</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-tiger</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+			<dependency> <groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-sandbox</artifactId>
+			<version>${springRichclient.version}</version> </dependency>
+		-->
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
