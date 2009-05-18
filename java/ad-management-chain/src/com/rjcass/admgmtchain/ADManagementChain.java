@@ -40,8 +40,8 @@ public class ADManagementChain
 	{
 		ADManagementChain chain = new ADManagementChain();
 
-		chain.setLDAPUser("CN=AB02847,OU=Wellpoint,OU=Associates,OU=usersAndGroups,DC=us,DC=ad,DC=wellpoint,DC=com");
-		chain.setLDAPPassword("Twinkie9");
+		chain.setLDAPUser("CN=XXXXXXXX,OU=Wellpoint,OU=Associates,OU=usersAndGroups,DC=us,DC=ad,DC=wellpoint,DC=com");
+		chain.setLDAPPassword("XXXXXXXX");
 		chain.setLDAPURL("ldap://us.ad.wellpoint.com:389");
 		chain.setUserSearchBase("OU=usersAndGroups,DC=us,DC=ad,DC=wellpoint,DC=com");
 
@@ -51,7 +51,7 @@ public class ADManagementChain
 		BufferedReader r = null;
 		try
 		{
-			r = new BufferedReader(new FileReader("C:/Documents and Settings/ab02847/Desktop/XMLSpyUsers.txt"));
+			r = new BufferedReader(new FileReader("C:/Documents and Settings/XXXXXXXX/Desktop/XMLSpyUsers.txt"));
 
 			Set<String> names = new HashSet<String>();
 
@@ -68,7 +68,7 @@ public class ADManagementChain
 			OutputStream fos = null;
 			try
 			{
-				fos = new FileOutputStream("C:/Documents and Settings/ab02847/Desktop/XMLSpy User Chain.csv");
+				fos = new FileOutputStream("C:/Documents and Settings/XXXXXXXX/Desktop/XMLSpy User Chain.csv");
 				chain.createUserReport(users, fos);
 			}
 			catch (FileNotFoundException e)
