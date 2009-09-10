@@ -105,6 +105,11 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.swixml</groupId>
+			<artifactId>swixml</artifactId>
+			<version>1.5.144</version>
+		</dependency>
 		<!--
 			<dependency> <groupId>org.springframework.richclient</groupId>
 			<artifactId>spring-richclient-resources</artifactId>
