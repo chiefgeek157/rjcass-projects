@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean name="swexBuilder" class="com.rjcass.swex.basic.BasicSWEXBuilder" p:configResource="swex.xml"/>
+	<bean name="actionMap" class="com.rjcass.swex.basic.ActionMap">
+		<property name="actions">
+			<map>
+				<entry key="test" value-ref="testAction"/>
+			</map>
+		</property>
+	</bean>
+	<bean name="testAction" class="javax.swing.text.TextAction"/>
+	<bean name="exitMenuItem" class="javax.swing.JMenuItem" p:text="Exit"/>
+	<bean name="fileMenu" class="javax.swing.JMenu" p:text="File"/>
+	<bean name="menuFactory" class="com.rjcass.swex.spring.JMenuFactory"/>
+	<bean name="menuBar" class="javax.swing.JMenuBar" factory-bean="menuFactory" factory-method="createMenu"/>
+	<bean name="mainFrame" class="javax.swing.JFrame">
+</beans>

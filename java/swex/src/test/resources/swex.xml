@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF8"?>
+<swex>
+	<actions>
+		<action name="exit" class="com.rjcass.swex.ExitAction"/>
+	</actions>
+	
+	<jframe>
+		<jmenubar>
+			<jmenu name="File">
+				<jmenuitem name="Exit" action="exit"/>
+			</jmenu>
+		</jmenubar>
+	</jframe>
+</swex>
