@@ -277,21 +277,21 @@ public class ADChainWalker
 		}
 	}
 
-	private void dumpAttributes(Attributes attrs) throws NamingException
-	{
-		NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
-		while (attrEnum.hasMore())
-		{
-			Attribute attr = attrEnum.next();
-			String id = attr.getID();
-			NamingEnumeration<?> values = attr.getAll();
-			while (values.hasMore())
-			{
-				Object value = values.next();
-				System.out.println("   " + id + ": '" + value + "'");
-			}
-		}
-	}
+	// private void dumpAttributes(Attributes attrs) throws NamingException
+	// {
+	// NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
+	// while (attrEnum.hasMore())
+	// {
+	// Attribute attr = attrEnum.next();
+	// String id = attr.getID();
+	// NamingEnumeration<?> values = attr.getAll();
+	// while (values.hasMore())
+	// {
+	// Object value = values.next();
+	// System.out.println("   " + id + ": '" + value + "'");
+	// }
+	// }
+	// }
 
 	private DirContext getContext() throws NamingException
 	{
@@ -319,7 +319,7 @@ public class ADChainWalker
 			throws NamingException
 	{
 		System.out.println("Searching for user " + displayName);
-		String searchFilter = "(&(objectClass=user)(" + ADUser.ATTR_DISPLAY_NAME + "=" + displayName + "))";
+		String searchFilter = "(&(objectClass=user)(" + ADUser.ATTR_DISPLAY_NAME + "=" + displayName + "*))";
 
 		return buildChain(searchFilter, users, ctx, searchCtls);
 	}
