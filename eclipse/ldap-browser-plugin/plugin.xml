@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="com.rjcass.eclipse.ldapbrowser.extensionpoints.ContextStorageManager" name="Root Context Storage Manager" schema="schema/com.rjcass.eclipse.ldapbrowser.extensionpoints.ContextStorageManager.exsd"/>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.rjcass.eclipse.ldapbrowser.handlers.EditNodeHandler"
+            id="com.rjcass.eclipse.ldapbrowser.commands.EditNode"
+            name="Edit LDAP Node">
+      </command>
+      <command
+            defaultHandler="com.rjcass.eclipse.ldapbrowser.handlers.AddRootContextHandler"
+            id="com.rjcass.ecplise.ldapbrowser.commands.AddRootContext"
+            name="Add Root Context">
+      </command>
+      <command
+            id="com.rjcass.eclipse.ldapbrowser.commands.DeleteRootContext"
+            name="Delete Root Context">
+      </command>
+      <command
+            defaultHandler="com.rjcass.eclipse.ldapbrowser.handlers.CollapseAllHandler"
+            id="com.rjcass.eclipse.ldapbrowser.commands.CollapseAll"
+            name="Collapse All">
+      </command>
+      <command
+            id="com.rjcass.eclipse.ldapbrowser.commands.RootContextProperties"
+            name="Root Context Properties">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:com.rjcass.eclipse.ldapbrowser.views.LDAPView?after=additions">
+         <command
+               commandId="com.rjcass.ecplise.ldapbrowser.commands.AddRootContext"
+               icon="icons/add.gif"
+               label="Add"
+               style="push"
+               tooltip="Add a new Root Context">
+         </command>
+         <command
+               commandId="com.rjcass.eclipse.ldapbrowser.commands.DeleteRootContext"
+               disabledIcon="icons/remove_disabled.gif"
+               icon="icons/remove_enabled.gif"
+               label="Delete"
+               style="push"
+               tooltip="Delete Root Context">
+         </command>
+         <command
+               commandId="com.rjcass.eclipse.ldapbrowser.commands.CollapseAll"
+               icon="icons/collapse_all.gif"
+               label="Collapse All"
+               style="push">
+         </command>
+         <command
+               commandId="com.rjcass.eclipse.ldapbrowser.commands.RootContextProperties"
+               label="Properties"
+               style="push"
+               tooltip="Edit Root Context Properties">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="com.rjcass.eclipse.ldapbrowser.perspectives.LDAPBrowserPerspectiveFactory"
+            icon="icons/sample.gif"
+            id="com.rjcass.eclipse.ldapbrowser.perspectives.LDAPBrowserPerspective"
+            name="LDAP Browser">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="com.rjcass.eclipse.ldapbrowser.views.LDAPView"
+            id="com.rjcass.eclipse.ldapbrowser.views.LDAPView"
+            name="LDAP View"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.rjcass.eclipse.ldapbrowser.editors.LDAPNodeEditor"
+            default="false"
+            icon="icons/sample.gif"
+            id="com.rjcass.eclipse.ldapbrowser.editors.LDAPNodeEditor"
+            name="LDAP Node Editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.rjcass.eclipse.ldapbrowser.expressions.OneRootContextSelected">
+         <with
+               variable="selection">
+            <count
+                  value="1">
+            </count>
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <instanceof
+                     value="com.rjcass.eclipse.ldapbrowser.model.RootLDAPNode">
+               </instanceof>
+            </iterate>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.rjcass.eclipse.ldapbrowser.handlers.DeleteRootContextHandler"
+            commandId="com.rjcass.eclipse.ldapbrowser.commands.DeleteRootContext">
+         <enabledWhen>
+            <reference
+                  definitionId="com.rjcass.eclipse.ldapbrowser.expressions.OneRootContextSelected">
+            </reference>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="com.rjcass.eclipse.ldapbrowser.handlers.RootContextPropertiesHandler"
+            commandId="com.rjcass.eclipse.ldapbrowser.commands.RootContextProperties">
+         <enabledWhen>
+            <reference
+                  definitionId="com.rjcass.eclipse.ldapbrowser.expressions.OneRootContextSelected">
+            </reference>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="com.rjcass.eclipse.ldapbrowser.extensionpoints.ContextStorageManager">
+      <implementation
+            class="com.rjcass.eclipse.ldapbrowser.persistence.preferences.PrefsContextManager">
+      </implementation>
+   </extension>
+ 
+</plugin>

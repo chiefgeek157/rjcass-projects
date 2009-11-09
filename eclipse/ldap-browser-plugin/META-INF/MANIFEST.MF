@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LDAP Browser
+Bundle-SymbolicName: com.rjcass.eclipse.ldapbrowser; singleton:=true
+Bundle-Version: 0.0.1
+Bundle-Activator: com.rjcass.eclipse.ldapbrowser.LDAPBrowserPlugin
+Bundle-Vendor: Roger Cass
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.console,
+ org.eclipse.equinox.security;bundle-version="1.0.100"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
