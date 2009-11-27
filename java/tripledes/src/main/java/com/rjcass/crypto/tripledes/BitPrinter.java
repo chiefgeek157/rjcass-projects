@@ -26,7 +26,7 @@ public class BitPrinter
 
 	public static String toString(byte[] bb, int start, int end, int groupSize)
 	{
-		int length = end - start;
+		int length = (end - start) * Byte.SIZE;
 		StringBuilder sb = new StringBuilder(length + length / groupSize - 1);
 		int bitCount = 0;
 		for (int i = start; i < end; i++)
